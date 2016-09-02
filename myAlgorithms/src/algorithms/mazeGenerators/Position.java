@@ -115,4 +115,14 @@ public class Position {
 		Position p=new Position(xyz[0],xyz[1],xyz[2]);
 		return p;
 	}
+	
+	@Override
+	public boolean equals(Object p)
+	{
+		if((p instanceof Position)==false) {
+			return false;
+		}
+		return ((this.x==((Position)p).x) && (this.y==((Position)p).y) && (this.z==((Position)p).z));
+	}
+	
 }

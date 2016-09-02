@@ -1,5 +1,10 @@
 package algorithms.mazeGenerators;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -29,7 +34,7 @@ public class Maze3d {
 	 * @param x - Length of the maze
 	 */
 	public Maze3d(int z , int y , int x) {
-		
+
 		length=x; //length of the maze
 		width=y; //width of the maze
 		floors=z; //height of the maze
@@ -73,7 +78,29 @@ public class Maze3d {
 			}
 		}
 	}
-	
+
+	public Maze3d(byte[] byteArr) throws IOException {
+		ByteArrayInputStream in = new ByteArrayInputStream(byteArr);
+		DataInputStream data = new DataInputStream(in);
+
+		this.floors = data.readInt();
+		this.width  = data.readInt();
+		this.length = data.readInt();
+
+		maze3d = new int[floors][width][length];
+
+		for (int i = 0; i < floors; i++) {
+			for (int j = 0; j < width; j++) {
+				for (int z = 0; z < length; z++) {
+					maze3d[i][j][z] = data.read();
+				}
+			}
+		}
+
+		startPosition = new Position(data.readInt() , data.readInt() , data.readInt());
+
+		goalPosition = new Position(data.readInt() , data.readInt() , data.readInt());
+	}
 	/**
 	 * Set wall for specific position.
 	 * @param pos - Position for setting the wall.
@@ -81,7 +108,7 @@ public class Maze3d {
 	public void setWall(Position pos) {
 		maze3d[pos.getZ()][pos.getY()][pos.getX()] = WALL;
 	}
-	
+
 	/**
 	 * Set free for specific position.
 	 * @param pos - Position for setting it as free space.
@@ -89,7 +116,7 @@ public class Maze3d {
 	public void setFree(Position pos) {
 		maze3d[pos.getZ()][pos.getY()][pos.getX()] = FREE;
 	}
-	
+
 	/**
 	 * Fill all the maze with walls.
 	 */
@@ -97,12 +124,12 @@ public class Maze3d {
 		for (int i = 0; i < getHeight(); i++) {
 			for (int j = 0; j < getWidth(); j++) {
 				for (int k = 0; k < getLength(); k++) {
-						maze3d[i][j][k] = 1;
+					maze3d[i][j][k] = 1;
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * For even maze only , set some of the cells free (0).
 	 */
@@ -127,7 +154,7 @@ public class Maze3d {
 			}
 		}
 	}
-	
+
 	/**
 	 * Get all possible moves , check if all the neighbors is free.
 	 * If they free , return who is free.
@@ -137,47 +164,47 @@ public class Maze3d {
 	public String[] getPossibleMoves(Position p) {
 		ArrayList<String> moves = new ArrayList<String>();
 		Position temp;
-    	//Checks if there is path to right
-    	if(p.getX()<length&&maze3d[(p.getZ())][p.getY()][p.getX()+1]==0)
-    	{
-    		temp=new Position(p.getZ(),p.getY(),p.getX()+1);
-    		moves.add(temp.getPosition());
-    	}
-    	//Checks if there is path to left
-    	if(p.getX()>0&&maze3d[(p.getZ())][p.getY()][p.getX()-1]==0)
-    	{
-    		temp=new Position(p.getZ(),p.getY(),p.getX()-1);
-    		moves.add(temp.getPosition());
-    	}
-    	//Checks if there is path to up
-    	if(p.getY()<width &&maze3d[p.getZ()][p.getY()+1][p.getX()]==0)
-    	{
-    		temp=new Position(p.getZ(),p.getY()+1,p.getX());
-    		moves.add(temp.getPosition());
-    	}
-    	//Checks if there is path to down
-    	if(p.getY()>0&&maze3d[p.getZ()][p.getY()-1][p.getX()]==0)
-    	{
-    		temp=new Position(p.getZ(),p.getY()-1,p.getX());
-    		moves.add(temp.getPosition());
-    	}
-    	//Checks if there is path forward
-    	if(p.getZ()<floors&&maze3d[p.getZ()+1][p.getY()][p.getX()]==0)
-    	{
-    		temp=new Position(p.getZ()+1,p.getY(),p.getX());
-    		moves.add(temp.getPosition());
-    	}
-    	//Checks if there is path backward
-    	if(p.getZ()>0&&maze3d[p.getZ()-1][p.getY()][p.getX()]==0)
-    	{
-    		temp=new Position(p.getZ()-1,p.getY(),p.getX());
-    		moves.add(temp.getPosition());
-    	}
+		//Checks if there is path to right
+		if(p.getX()<length&&maze3d[(p.getZ())][p.getY()][p.getX()+1]==0)
+		{
+			temp=new Position(p.getZ(),p.getY(),p.getX()+1);
+			moves.add(temp.getPosition());
+		}
+		//Checks if there is path to left
+		if(p.getX()>0&&maze3d[(p.getZ())][p.getY()][p.getX()-1]==0)
+		{
+			temp=new Position(p.getZ(),p.getY(),p.getX()-1);
+			moves.add(temp.getPosition());
+		}
+		//Checks if there is path to up
+		if(p.getY()<width &&maze3d[p.getZ()][p.getY()+1][p.getX()]==0)
+		{
+			temp=new Position(p.getZ(),p.getY()+1,p.getX());
+			moves.add(temp.getPosition());
+		}
+		//Checks if there is path to down
+		if(p.getY()>0&&maze3d[p.getZ()][p.getY()-1][p.getX()]==0)
+		{
+			temp=new Position(p.getZ(),p.getY()-1,p.getX());
+			moves.add(temp.getPosition());
+		}
+		//Checks if there is path forward
+		if(p.getZ()<floors&&maze3d[p.getZ()+1][p.getY()][p.getX()]==0)
+		{
+			temp=new Position(p.getZ()+1,p.getY(),p.getX());
+			moves.add(temp.getPosition());
+		}
+		//Checks if there is path backward
+		if(p.getZ()>0&&maze3d[p.getZ()-1][p.getY()][p.getX()]==0)
+		{
+			temp=new Position(p.getZ()-1,p.getY(),p.getX());
+			moves.add(temp.getPosition());
+		}
 
-    	String[] movesArray = moves.toArray(new String[moves.size()]);
+		String[] movesArray = moves.toArray(new String[moves.size()]);
 		return movesArray;
 	}
-	
+
 	/**
 	 * Set value for specific position by x,y,z.
 	 * @param z - Position according to Z axis.
@@ -231,7 +258,7 @@ public class Maze3d {
 	public void setGoalPosition(Position goalPosition) {
 		this.goalPosition = goalPosition;
 	}
-	
+
 	/**
 	 * Get length of the maze.
 	 * @return Length of the maze.
@@ -276,7 +303,7 @@ public class Maze3d {
 		}
 		return crossSection;
 	}
-	
+
 	/**
 	 * Get cross section by y and check the bounds.
 	 * @param y - Position according to Y axis.
@@ -297,7 +324,7 @@ public class Maze3d {
 		}
 		return crossSection;
 	}
-	
+
 	/*
 	 * Get cross section by z and check the bounds.
 	 * @param z - Position according to Z axis.
@@ -318,7 +345,7 @@ public class Maze3d {
 		}
 		return crossSection;
 	}
-	
+
 	/**
 	 * Print the 3D Maze.
 	 */
@@ -334,5 +361,76 @@ public class Maze3d {
 		}
 	}
 
+	public byte[] toByteArray() {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		DataOutputStream data = new DataOutputStream(out);
 
+		try {
+			data.writeInt(floors);
+			data.writeInt(width);
+			data.writeInt(length);
+
+			for (int i = 0; i < floors; i++) {
+				for (int j = 0; j < width; j++) {
+					for (int k = 0; k < length; k++) {
+						data.write(maze3d[i][j][k]);
+					}
+				}
+			}
+
+			data.writeInt(startPosition.getZ());
+			data.writeInt(startPosition.getY());
+			data.writeInt(startPosition.getX());
+
+			data.writeInt(goalPosition.getZ());
+			data.writeInt(goalPosition.getY());
+			data.writeInt(goalPosition.getX());
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return out.toByteArray();
+	}
+
+	public boolean equals(Object obj)
+	{
+
+		if(obj==null)
+		{
+			return false;
+		}
+		if(this==obj)
+		{
+			return true;
+		}
+		if(!(obj instanceof Maze3d))
+		{
+			return false;
+		}
+
+		Maze3d other = (Maze3d) obj;//now we know it is worker
+
+		if(this.length!=other.length || this.width!=other.width || this.floors!=other.floors) {
+			return false;
+		} else if (this.startPosition.equals(other.startPosition)==false 
+				|| this.goalPosition.equals(other.goalPosition)==false) {
+			return false;
+		} else {
+			for(int i=0;i<floors;i++)
+			{
+				for(int j=0;j<width;j++)
+				{
+					for(int n=0;n<length;n++)
+					{
+						if(this.maze3d[i][j][n]!=other.maze3d[i][j][n])
+						{
+							return false;
+						}
+					}
+				}
+			}
+		}
+
+		return true;
+	}
 }
