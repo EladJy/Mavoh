@@ -92,6 +92,10 @@ public class Maze3d {
 		this.width  = data.readInt();
 		this.length = data.readInt();
 
+		startPosition = new Position(data.readInt() , data.readInt() , data.readInt());
+
+		goalPosition = new Position(data.readInt() , data.readInt() , data.readInt());
+	
 		maze3d = new int[floors][width][length];
 
 		for (int i = 0; i < floors; i++) {
@@ -101,10 +105,7 @@ public class Maze3d {
 				}
 			}
 		}
-
-		startPosition = new Position(data.readInt() , data.readInt() , data.readInt());
-
-		goalPosition = new Position(data.readInt() , data.readInt() , data.readInt());
+		data.read(); //For stopping counting end of the maze.
 	}
 	
 	/**
@@ -369,10 +370,13 @@ public class Maze3d {
 
 	/**
 	 * Returning all the maze 3d data converted to byte array.</br>
-	 * Format:</br>
+	 * <b>Format:</b></br>
 	 * 4 bytes of floors, 4 bytes of width , 4 bytes of length ,</br>
-	 *  TO DO TO DO TO DO
-	 * @return
+	 * start position is 3 integers represented by 4 bytes each,</br>
+	 * goal position is 3 integers represented by 4 bytes each,</br>
+	 * all the cells of the maze 3d , 1 byte.
+	 * @return byte array with all maze details.
+	 * @throws IOException
 	 */
 	public byte[] toByteArray() {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -383,14 +387,6 @@ public class Maze3d {
 			data.writeInt(width);
 			data.writeInt(length);
 
-			for (int i = 0; i < floors; i++) {
-				for (int j = 0; j < width; j++) {
-					for (int k = 0; k < length; k++) {
-						data.write(maze3d[i][j][k]);
-					}
-				}
-			}
-
 			data.writeInt(startPosition.getZ());
 			data.writeInt(startPosition.getY());
 			data.writeInt(startPosition.getX());
@@ -399,6 +395,14 @@ public class Maze3d {
 			data.writeInt(goalPosition.getY());
 			data.writeInt(goalPosition.getX());
 
+			for (int i = 0; i < floors; i++) {
+				for (int j = 0; j < width; j++) {
+					for (int k = 0; k < length; k++) {
+						data.write(maze3d[i][j][k]);
+					}
+				}
+			}
+			data.write(0); //For stopping counting end of the maze.
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -406,7 +410,9 @@ public class Maze3d {
 	}
 
 	/**
-	 * TO DO TO DO
+	 * Check if 2 mazes are equal.
+	 * @param obj - Generic type , usually represent second maze. 
+	 * @return True if equal , otherwise return false.
 	 */
 	public boolean equals(Object obj)
 	{

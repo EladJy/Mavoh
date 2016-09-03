@@ -116,6 +116,11 @@ public class Position {
 		return p;
 	}
 	
+	/**
+	 * Check if the current position is equal to other position by (z,y,x)
+	 * @param p - Generic type , usually other position to check with.
+	 * @return True if equal , otherwise return false.
+	 */
 	@Override
 	public boolean equals(Object p)
 	{
