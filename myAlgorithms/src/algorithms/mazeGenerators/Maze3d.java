@@ -14,7 +14,7 @@ import java.util.ArrayList;
  * 0 - Represents a empty/free position.</br>
  * 1 - Represents a position with wall.
  * @author Elad Jarby
- *
+ * @version 1.1
  */
 public class Maze3d {
 	private int[][][] maze3d;//x-axis,y-axis,z-axis
@@ -79,6 +79,11 @@ public class Maze3d {
 		}
 	}
 
+	/**
+	 * Constructor that gets byte array and construct a maze from bytes.
+	 * @param byteArr - byte array.
+	 * @throws IOException
+	 */
 	public Maze3d(byte[] byteArr) throws IOException {
 		ByteArrayInputStream in = new ByteArrayInputStream(byteArr);
 		DataInputStream data = new DataInputStream(in);
@@ -101,6 +106,7 @@ public class Maze3d {
 
 		goalPosition = new Position(data.readInt() , data.readInt() , data.readInt());
 	}
+	
 	/**
 	 * Set wall for specific position.
 	 * @param pos - Position for setting the wall.
@@ -361,6 +367,13 @@ public class Maze3d {
 		}
 	}
 
+	/**
+	 * Returning all the maze 3d data converted to byte array.</br>
+	 * Format:</br>
+	 * 4 bytes of floors, 4 bytes of width , 4 bytes of length ,</br>
+	 *  TO DO TO DO TO DO
+	 * @return
+	 */
 	public byte[] toByteArray() {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		DataOutputStream data = new DataOutputStream(out);
@@ -392,6 +405,9 @@ public class Maze3d {
 		return out.toByteArray();
 	}
 
+	/**
+	 * TO DO TO DO
+	 */
 	public boolean equals(Object obj)
 	{
 

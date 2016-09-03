@@ -172,12 +172,12 @@ public class GrowingTreeGenerator extends CommonMaze3dGenerator {
 	public Direction[] getPossibleMoves(Position p) {
 		ArrayList<Direction> moves = new ArrayList<Direction>();
 		//Checks if there is path to right
-		if(p.getX()+2<maze.getLength()-1 && maze.getPointValue(p.getZ(), p.getY(), p.getX()+2)==1)
+		if(p.getX()+2<maze.getLength()-1 && p.getZ() != 0 && maze.getPointValue(p.getZ(), p.getY(), p.getX()+2)==1)
 		{
 			moves.add(Direction.Right);
 		}
 		//Checks if there is path to left
-		if(p.getX()-2>=0 && maze.getPointValue(p.getZ(), p.getY(), p.getX()-2)==1)
+		if(p.getX()-2>=0 && p.getZ() != 0 && maze.getPointValue(p.getZ(), p.getY(), p.getX()-2)==1)
 		{
 			moves.add(Direction.Left);
 		}
@@ -187,18 +187,18 @@ public class GrowingTreeGenerator extends CommonMaze3dGenerator {
 			moves.add(Direction.Up);
 		}
 		//Checks if there is path to down
-		if(p.getZ()-1>0&&maze.getPointValue(p.getZ()-1, p.getY(), p.getX())==1)
+		if(p.getZ()-1 > 0&&maze.getPointValue(p.getZ()-1, p.getY(), p.getX())==1)
 		{
 			moves.add(Direction.Down);
 		}
 		//Checks if there is path backward
-		if(p.getY()+2<maze.getWidth()-1
-				&& maze.getPointValue(p.getZ(), p.getY()+2, p.getX())==1)
+		if(p.getY()+2<maze.getWidth()-1 
+				&& p.getZ() != 0 && maze.getPointValue(p.getZ(), p.getY()+2, p.getX())==1)
 		{
 			moves.add(Direction.Backward);
 		}
 		//Checks if there is path forward
-		if(p.getY()-2>=0&&maze.getPointValue(p.getZ(), p.getY()-2, p.getX())==1)
+		if(p.getY()-2>=0&&p.getZ() != 0 && maze.getPointValue(p.getZ(), p.getY()-2, p.getX())==1)
 		{
 			moves.add(Direction.Forward);
 		}
