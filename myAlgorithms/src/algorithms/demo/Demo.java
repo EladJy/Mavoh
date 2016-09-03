@@ -4,6 +4,7 @@ import algorithms.mazeGenerators.GrowingTreeGenerator;
 import algorithms.mazeGenerators.GrowingTreeRandomCell;
 import algorithms.mazeGenerators.Maze3d;
 import algorithms.mazeGenerators.Maze3dGenerator;
+import algorithms.mazeGenerators.Maze3dSearchable;
 import algorithms.mazeGenerators.Position;
 import algorithms.search.BFS;
 import algorithms.search.DFS;

@@ -1,9 +1,7 @@
-package algorithms.demo;
+package algorithms.mazeGenerators;
 
 import java.util.ArrayList;
 
-import algorithms.mazeGenerators.Maze3d;
-import algorithms.mazeGenerators.Position;
 import algorithms.search.Searchable;
 import algorithms.search.State;
 /**
