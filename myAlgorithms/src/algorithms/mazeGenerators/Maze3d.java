@@ -88,13 +88,13 @@ public class Maze3d {
 		ByteArrayInputStream in = new ByteArrayInputStream(byteArr);
 		DataInputStream data = new DataInputStream(in);
 
-		this.floors = data.readInt();
-		this.width  = data.readInt();
-		this.length = data.readInt();
+		this.floors = data.read();
+		this.width  = data.read();
+		this.length = data.read();
 
-		startPosition = new Position(data.readInt() , data.readInt() , data.readInt());
+		startPosition = new Position(data.read() , data.read() , data.read());
 
-		goalPosition = new Position(data.readInt() , data.readInt() , data.readInt());
+		goalPosition = new Position(data.read() , data.read() , data.read());
 	
 		maze3d = new int[floors][width][length];
 
@@ -105,7 +105,6 @@ public class Maze3d {
 				}
 			}
 		}
-		data.read(); //For stopping counting end of the maze.
 	}
 	
 	/**
@@ -371,9 +370,9 @@ public class Maze3d {
 	/**
 	 * Returning all the maze 3d data converted to byte array.</br>
 	 * <b>Format:</b></br>
-	 * 4 bytes of floors, 4 bytes of width , 4 bytes of length ,</br>
-	 * start position is 3 integers represented by 4 bytes each,</br>
-	 * goal position is 3 integers represented by 4 bytes each,</br>
+	 * 1 byte of floors, 1 byte of width , 1 byte of length ,</br>
+	 * start position is 3 integers represented by 1 byte each,</br>
+	 * goal position is 3 integers represented by 1 byte each,</br>
 	 * all the cells of the maze 3d , 1 byte.
 	 * @return byte array with all maze details.
 	 * @throws IOException
@@ -383,17 +382,17 @@ public class Maze3d {
 		DataOutputStream data = new DataOutputStream(out);
 
 		try {
-			data.writeInt(floors);
-			data.writeInt(width);
-			data.writeInt(length);
+			data.write(floors);
+			data.write(width);
+			data.write(length);
 
-			data.writeInt(startPosition.getZ());
-			data.writeInt(startPosition.getY());
-			data.writeInt(startPosition.getX());
+			data.write(startPosition.getZ());
+			data.write(startPosition.getY());
+			data.write(startPosition.getX());
 
-			data.writeInt(goalPosition.getZ());
-			data.writeInt(goalPosition.getY());
-			data.writeInt(goalPosition.getX());
+			data.write(goalPosition.getZ());
+			data.write(goalPosition.getY());
+			data.write(goalPosition.getX());
 
 			for (int i = 0; i < floors; i++) {
 				for (int j = 0; j < width; j++) {
@@ -402,7 +401,6 @@ public class Maze3d {
 					}
 				}
 			}
-			data.write(0); //For stopping counting end of the maze.
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
