@@ -18,7 +18,7 @@ public interface View {
 	
 	public void displayMaze(byte[] byteArray) throws Exception;
 	
-	public void displayCrossSection(int[][] crossSection , String axis) ;
+	public void displayCrossSection(int[][] crossSection) ;
 	
 	public void displaySaveMaze(String str);
 	

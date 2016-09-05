@@ -30,10 +30,10 @@ public class CLI extends Thread {
 			@Override
 			public void run() {
 				try {
-					String userCommand = in.readLine();
+					String userCommand;
 					Command command = null;
 
-					while(!(userCommand.equals("exit"))) {
+					while(!(userCommand = in.readLine()).equals("exit")) {
 						ArrayList<String> paramArray = new ArrayList<String>();
 
 						while(!(userCommand.isEmpty())) {
@@ -46,7 +46,8 @@ public class CLI extends Thread {
 								break;
 							}
 
-							paramArray.add(userCommand.substring(0, userCommand.lastIndexOf(" ")));
+							paramArray.add(userCommand.substring(userCommand.lastIndexOf(" ") + 1));
+							userCommand = userCommand.substring(0, userCommand.lastIndexOf(" "));
 						}
 
 						if(command == null) {
@@ -72,20 +73,20 @@ public class CLI extends Thread {
 	}
 
 	private void printInstructions() {
-		System.out.println("=====================================================================");
-		System.out.println("===================== Hello , Welcome to my CLI! ====================");
-		System.out.println("=====================================================================");
-		System.out.println(">> 1)  dir <path>                                                  <<");
-		System.out.println(">> 2)  generate_3d_maze <maze name> <floors> <width> <length>      <<");
-		System.out.println(">> 3)  display <maze name>                                         <<");
-		System.out.println(">> 4)  display_cross_section <axis> <index> <maze name>            <<");
-		System.out.println(">> 5)  save_maze <maze name> <file name>                           <<");
-		System.out.println(">> 6)  oad_maze <file name> <maze name>                            <<");
-		System.out.println(">> 7)  solve <maze name> <algorithm>                               <<");
-		System.out.println(">> 8)  display_solution <maze name>                                <<");
-		System.out.println(">> 9)  exit                                                        <<");
-		System.out.println(">> 10) help                                                        <<");
-		System.out.println("=====================================================================");
+		System.out.println("================================================================================");
+		System.out.println("=========================== Hello , Welcome to my CLI! =========================");
+		System.out.println("================================================================================");
+		System.out.println(">> 1)  dir <path>                                                             <<");
+		System.out.println(">> 2)  generate_3d_maze <maze name> <floors> <width> <length> <algorithm>     <<");
+		System.out.println(">> 3)  display <maze name>                                                    <<");
+		System.out.println(">> 4)  display_cross_section <axis> <index> <maze name>                       <<");
+		System.out.println(">> 5)  save_maze <maze name> <file name>                                      <<");
+		System.out.println(">> 6)  oad_maze <file name> <maze name>                                       <<");
+		System.out.println(">> 7)  solve <maze name> <algorithm>                                          <<");
+		System.out.println(">> 8)  display_solution <maze name>                                           <<");
+		System.out.println(">> 9)  exit                                                                   <<");
+		System.out.println(">> 10) help                                                                   <<");
+		System.out.println("================================================================================");
 	}
 
 }

@@ -63,7 +63,7 @@ public class MyView extends CommonView {
 			{
 				System.out.println();
 				System.out.println("Level: "+z);
-				displayCrossSection(maze.getCrossSectionByZ(z),"z");
+				displayCrossSection(maze.getCrossSectionByZ(z));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -72,13 +72,7 @@ public class MyView extends CommonView {
 	}
 
 	@Override
-	public void displayCrossSection(int[][] crossSection , String axis) {
-		if(axis.equals("x"))
-			System.out.println("Cross section by X:");
-		if(axis.equals("y"))
-			System.out.println("Cross section by Y:");
-		if(axis.equals("z"))
-			System.out.println("Cross section by Z:");
+	public void displayCrossSection(int[][] crossSection) {
 		for(int i = 0; i < crossSection.length; i++)
 		{
 			for(int j = 0; j < crossSection[0].length; j++)
