@@ -1,18 +1,35 @@
 package model;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import algorithms.mazeGenerators.GrowingTreeGenerator;
 import algorithms.mazeGenerators.GrowingTreeLastCell;
 import algorithms.mazeGenerators.GrowingTreeRandomCell;
 import algorithms.mazeGenerators.Maze3d;
 import algorithms.mazeGenerators.Maze3dGenerator;
+import algorithms.mazeGenerators.Maze3dSearchable;
 import algorithms.mazeGenerators.SimpleMaze3dGenerator;
+import algorithms.search.BFS;
+import algorithms.search.DFS;
+import algorithms.search.Searchable;
+import algorithms.search.Searcher;
 import algorithms.search.Solution;
 import controller.Controller;
+import io.MyCompressorOutputStream;
+import io.MyDecompressorInputStream;
 
 public class MyModel extends CommonModel {
 	HashMap<String, Maze3d> mazes;
@@ -49,12 +66,16 @@ public class MyModel extends CommonModel {
 
 	@Override
 	public void generate3dMaze(String[] arr) {
+		String mazeName = arr[0];
 		if(arr.length != 5) {
 			controller.displayError("Invalid number of parameters");
 			return;
 		}
-
-		if((Integer.parseInt(arr[1]) < 1) || (Integer.parseInt(arr[2]) < 1) || (Integer.parseInt(arr[3]) < 1)) {
+		int x = Integer.parseInt(arr[1]);
+		int y = Integer.parseInt(arr[2]);
+		int z = Integer.parseInt(arr[3]);
+		String algorithm = arr[4];
+		if( x < 1 || y < 1 || z < 1 ) {
 			controller.displayError("Error on (z,y,x) , Must be positive numbers");
 			return;
 		}
@@ -63,19 +84,19 @@ public class MyModel extends CommonModel {
 			@Override
 			public void run() {
 				Maze3dGenerator mg = null;
-				if(arr[arr.length-1].intern() == "simple") {
+				if(algorithm.intern() == "simple") {
 					mg = new SimpleMaze3dGenerator();
-				} else if (arr[arr.length-1].intern() == "growing-random") {
+				} else if (algorithm.intern() == "growing-random") {
 					mg = new GrowingTreeGenerator(new GrowingTreeRandomCell());
-				} else if (arr[arr.length-1].intern() == "growing-last") {
+				} else if (algorithm.intern() == "growing-last") {
 					mg = new GrowingTreeGenerator(new GrowingTreeLastCell());
 				} else {
 					controller.displayError("Invalid algorithm name");
 					return;
 				}
-				if(mazes.containsKey(arr[0].toString())) {
-					controller.displayError("Maze name is already exists , please try other maze");
-					return;
+				if(mazes.containsKey(mazeName)) {
+					System.out.println("You override maze: " + mazeName + " with new parameters.");
+					mazes.remove(mazeName);
 				}
 
 				mazes.put(arr[0].toString(), mg.generate(Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), Integer.parseInt(arr[3])));
@@ -92,14 +113,14 @@ public class MyModel extends CommonModel {
 			controller.displayError("Invalid number of parameters");
 			return;
 		}
-
-		if(!mazes.containsKey(arr[0].toString())) {
-			controller.displayError("There is no maze with the name: " + arr[0].toString());
+		String mazeName = arr[0];
+		if(!mazes.containsKey(mazeName)) {
+			controller.displayError("There is no maze with the name: " + mazeName);
 			return;
 		}
 
 		try {
-			controller.displayMaze(mazes.get(arr[0].toString()).toByteArray());
+			controller.displayMaze(mazes.get(mazeName).toByteArray());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -108,18 +129,16 @@ public class MyModel extends CommonModel {
 
 	@Override
 	public void getCrossSection(String[] arr) {
+		if (arr.length != 3) {
+			controller.displayError("Invalid number of parameters");
+			return;
+		}
 		Maze3d maze;
 		String mazeName = arr[2];
 		String axis = arr[0];
 		int index = Integer.parseInt(arr[1]);
 		maze = mazes.get(mazeName);
-
-		if (arr.length != 3) {
-			controller.displayError("Invalid number of parameters");
-			return;
-		}
-
-		if (!mazes.containsKey(arr[2].toString())) {
+		if (!mazes.containsKey(mazeName)) {
 			controller.displayError("There is no maze with the name: " + mazeName);
 			return;
 		}
@@ -158,51 +177,165 @@ public class MyModel extends CommonModel {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		
-
-
 	}
 
 	@Override
 	public void saveMaze(String[] arr) {
-		// TODO Auto-generated method stub
+		if (arr.length != 2) {
+			controller.displayError("Invalid number of parameters");
+			return;
+		}
+		String mazeName = arr[0];
+		String fileName = arr[1];
+		File file = new File(fileName);
+		if (!mazes.containsKey(mazeName)) {
+			controller.displayError("There is no maze with the name: " + mazeName);
+			return;
+		}
+		if(file.exists() && !file.isDirectory()) {
+			controller.displayError("File already exist or is directory , try another name.");
+			return;
+		}
+		Maze3d maze = mazes.get(mazeName);
+		byte[] mazeInBytes = maze.toByteArray();
 
+		MyCompressorOutputStream out;
+		try {
+			out = new MyCompressorOutputStream(new FileOutputStream(fileName));
+			out.write(ByteBuffer.allocate(4).putInt(mazeInBytes.length).array());
+			out.write(mazeInBytes);
+			controller.displaySaveMaze(mazeName + " has been saved!");
+			out.close();
+			return;
+
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void loadMaze(String[] arr) {
-		// TODO Auto-generated method stub
+		if (arr.length != 2) {
+			controller.displayError("Invalid number of parameters");
+			return;
+		}
+		
+		String fileName = arr[0];
+		File file = new File(fileName);
+		String mazeName = arr[1];
+		
+		if (mazes.containsKey(mazeName)) {
+			controller.displayError("Maze already exist , try to load with other name.");
+			return;
+		}
+		if(!file.exists() || file.isDirectory()) {
+			controller.displayError("File not exist / it is directory!");
+			return;
+		}
+		try {
+			MyDecompressorInputStream in = new MyDecompressorInputStream(new FileInputStream(fileName));
+			ByteArrayOutputStream outByte = new ByteArrayOutputStream();
 
+			outByte.write(in.read());
+			outByte.write(in.read());
+			outByte.write(in.read());
+			outByte.write(in.read());
+
+			ByteArrayInputStream inByte = new ByteArrayInputStream(outByte.toByteArray());
+			DataInputStream data = new DataInputStream(inByte);
+
+			byte[] byteArr = new byte[data.readInt()];
+			in.read(byteArr);
+			mazes.put(mazeName, new Maze3d(byteArr));
+			controller.displayLoadMaze(mazeName + " has been loaded from file: "  + fileName);		
+			in.close();
+			return;
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	@Override
-	public void mazeSize(String[] arr) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void fileSize(String[] arr) {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public void getSolutionReady(String[] arr) {
-		// TODO Auto-generated method stub
+		if (arr.length != 2) {
+			controller.displayError("Invalid number of parameters");
+			return;
+		}
+		String mazeName = arr[0];
+		String algorithm = arr[1];
+		Maze3d maze=mazes.get(mazeName);
+		if (!mazes.containsKey(mazeName)) {
+			controller.displayError("There is no maze with the name: " + mazeName);
+			return;
+		}
+
+		threadPool.execute(new Runnable() {
+
+			@Override
+			public void run() {
+				Searchable<String> mazeSearch = new Maze3dSearchable(maze);
+				Searcher<String> searchAlgorithm;
+
+				switch(algorithm) {
+				case "bfs":
+				case "BFS":
+					searchAlgorithm = new BFS<String>();
+					break;
+				case "dfs":
+				case "DFS":
+					searchAlgorithm = new DFS<String>();
+					break;
+				default:
+					controller.displayError("Invalid algorithm");
+					return;
+				}
+
+				mazeSolutions.put(maze, searchAlgorithm.Search(mazeSearch));
+				controller.displaySolutionReady("Solution for: " + mazeName + "is ready!");
+			}
+		});
 
 	}
 
 	@Override
 	public void getSolution(String[] arr) {
-		// TODO Auto-generated method stub
+		if (arr.length != 1) {
+			controller.displayError("Invalid number of parameters");
+			return;
+		}
+		String mazeName = arr[0];
+		Maze3d maze=mazes.get(mazeName);
+		if (!mazes.containsKey(mazeName)) {
+			controller.displayError("There is no maze with the name: " + mazeName);
+			return;
+		}
 
+		if(mazeSolutions.containsKey(maze)) {
+			controller.displaySolution(mazeSolutions.get(maze));
+			return;
+		} else {
+			controller.displayError("Solution doesn't exist! / use 'Solve' commannd first!");
+		}
 	}
 
 	@Override
 	public void exitCommand(String[] emptyArr) {
-		// TODO Auto-generated method stub
+		threadPool.shutdown();
+		try {
+			while(!(threadPool.awaitTermination(10, TimeUnit.SECONDS)));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 

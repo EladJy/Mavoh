@@ -95,16 +95,6 @@ public class MyView extends CommonView {
 	}
 
 	@Override
-	public void displayMazeSize(int size) {
-		System.out.println("Size of maze is: " + size);		
-	}
-
-	@Override
-	public void displayFileSize(long size) {
-		System.out.println("Size of file is: " + size);		
-	}
-
-	@Override
 	public void displaySolutionReady(String msg) {
 		System.out.println(msg);
 	}

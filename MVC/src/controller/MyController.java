@@ -65,22 +65,6 @@ public class MyController extends CommonController {
 			}
 		});
 
-		stringToCommand.put("maze_size", new Command() {
-
-			@Override
-			public void doCommand(String[] strings) {
-				model.mazeSize(strings);		
-			}
-		});
-
-		stringToCommand.put("file_size", new Command() {
-
-			@Override
-			public void doCommand(String[] strings) {
-				model.fileSize(strings);		
-			}
-		});
-
 		stringToCommand.put("solve", new Command() {
 
 			@Override
@@ -94,6 +78,14 @@ public class MyController extends CommonController {
 			@Override
 			public void doCommand(String[] strings) {
 				model.getSolution(strings);			
+			}
+		});
+		
+		stringToCommand.put("exit", new Command() {
+			
+			@Override
+			public void doCommand(String[] strings) {
+				model.exitCommand(strings);				
 			}
 		});
 	}
@@ -134,16 +126,6 @@ public class MyController extends CommonController {
 	}
 
 	@Override
-	public void displayMazeSize(int size) {
-		view.displayMazeSize(size);
-	}
-
-	@Override
-	public void displayFileSize(long size) {
-		view.displayFileSize(size);
-	}
-
-	@Override
 	public void displaySolutionReady(String msg) {
 		view.displaySolutionReady(msg);
 	}
@@ -152,4 +134,5 @@ public class MyController extends CommonController {
 	public void displaySolution(Solution<String> solution) {
 		view.displaySolution(solution);
 	}
+	
 }

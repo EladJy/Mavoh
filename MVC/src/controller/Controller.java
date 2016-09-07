@@ -24,10 +24,6 @@ public interface Controller {
 	
 	public void displayLoadMaze(String str);
 	
-	public void displayMazeSize(int size);
-	
-	public void displayFileSize(long size);
-	
 	public void displaySolutionReady(String msg);
 	
 	public void displaySolution(Solution<String> solution);

@@ -15,10 +15,6 @@ public interface Model {
 	
 	public void loadMaze(String[] arr);
 	
-	public void mazeSize(String[] arr);
-	
-	public void fileSize(String[] arr);
-	
 	public void getSolutionReady(String[] arr);
 	
 	public void getSolution(String[] arr);

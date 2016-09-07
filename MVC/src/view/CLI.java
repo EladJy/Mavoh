@@ -24,8 +24,7 @@ public class CLI extends Thread {
 
 	public void start() {
 		printInstructions();
-		out.print("Please enter command: ");
-		out.flush();
+
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -33,10 +32,19 @@ public class CLI extends Thread {
 					String userCommand;
 					Command command = null;
 
-					while(!(userCommand = in.readLine()).equals("exit")) {
+					while(true) {
 						ArrayList<String> paramArray = new ArrayList<String>();
-
+						out.print("Please enter command: ");
+						out.flush();
+						userCommand = in.readLine();
+						if(userCommand.equals("exit")) {
+							break;
+						} else if(userCommand.equals("help")) {
+							printInstructions();
+							continue;
+						}
 						while(!(userCommand.isEmpty())) {
+
 							if((command = stringToCommand.get(userCommand)) != null) {
 								Collections.reverse(paramArray);
 								command.doCommand(paramArray.toArray(new String[paramArray.size()]));
@@ -49,16 +57,16 @@ public class CLI extends Thread {
 							paramArray.add(userCommand.substring(userCommand.lastIndexOf(" ") + 1));
 							userCommand = userCommand.substring(0, userCommand.lastIndexOf(" "));
 						}
-
 						if(command == null) {
 							out.println("Error with command");
 							out.flush();
 						}
 					}
-
 					command = stringToCommand.get("exit");
 					command.doCommand(null);
-					out.print("Bye bye , have a nice day!");
+					out.println("==========================");
+					out.println("Bye bye , have a nice day!");
+					out.println("==========================");
 					out.flush();	
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -81,7 +89,7 @@ public class CLI extends Thread {
 		System.out.println(">> 3)  display <maze name>                                                    <<");
 		System.out.println(">> 4)  display_cross_section <axis> <index> <maze name>                       <<");
 		System.out.println(">> 5)  save_maze <maze name> <file name>                                      <<");
-		System.out.println(">> 6)  oad_maze <file name> <maze name>                                       <<");
+		System.out.println(">> 6)  load_maze <file name> <maze name>                                      <<");
 		System.out.println(">> 7)  solve <maze name> <algorithm>                                          <<");
 		System.out.println(">> 8)  display_solution <maze name>                                           <<");
 		System.out.println(">> 9)  exit                                                                   <<");
