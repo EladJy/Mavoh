@@ -1,8 +1,6 @@
 package controller;
 
 import algorithms.search.Solution;
-import model.Model;
-import view.View;
 
 public class MyController extends CommonController {
 
