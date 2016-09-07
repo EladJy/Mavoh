@@ -428,7 +428,7 @@ public class Maze3d {
 			return false;
 		}
 
-		Maze3d other = (Maze3d) obj;//now we know it is worker
+		Maze3d other = (Maze3d) obj; //now we know it is maze 3d!
 
 		if(this.length!=other.length || this.width!=other.width || this.floors!=other.floors) {
 			return false;
