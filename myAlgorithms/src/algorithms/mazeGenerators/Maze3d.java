@@ -177,7 +177,7 @@ public class Maze3d {
 			moves.add(temp.getPosition());
 		}
 		//Checks if there is path to left
-		if(p.getX()>0&&maze3d[(p.getZ())][p.getY()][p.getX()-1]==0)
+		if(p.getX()>=0&&maze3d[(p.getZ())][p.getY()][p.getX()-1]==0)
 		{
 			temp=new Position(p.getZ(),p.getY(),p.getX()-1);
 			moves.add(temp.getPosition());
@@ -189,7 +189,7 @@ public class Maze3d {
 			moves.add(temp.getPosition());
 		}
 		//Checks if there is path to down
-		if(p.getY()>0&&maze3d[p.getZ()][p.getY()-1][p.getX()]==0)
+		if(p.getY()>=0&&maze3d[p.getZ()][p.getY()-1][p.getX()]==0)
 		{
 			temp=new Position(p.getZ(),p.getY()-1,p.getX());
 			moves.add(temp.getPosition());
