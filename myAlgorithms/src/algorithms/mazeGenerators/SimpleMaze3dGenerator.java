@@ -56,15 +56,15 @@ public class SimpleMaze3dGenerator extends CommonMaze3dGenerator {
 		}
 		if(i == x)
 		{
-			maze.setGoalPosition(new Position(i, j, k-1));
+			maze.setGoalPosition(new Position(k, j, i-1));
 		}
 		if(j == y)
 		{
-			maze.setGoalPosition(new Position(i, j-1, k));
+			maze.setGoalPosition(new Position(k, j-1, i));
 		}
 		if(k == z+2)
 		{
-			maze.setGoalPosition(new Position(i-1, j, k));
+			maze.setGoalPosition(new Position(k-1, j, i));
 		}
 		return maze;
 	}
