@@ -11,6 +11,12 @@ import algorithms.search.Solution;
 import controller.Command;
 import controller.Controller;
 
+/**
+ * Display all the generated information for specific command.
+ * @author Elad Jarby
+ * @version 1.0
+ * @since 06.09.2016
+ */
 public class MyView extends CommonView {
 	
 	CLI cli;
@@ -18,6 +24,10 @@ public class MyView extends CommonView {
     PrintWriter out;
 	HashMap<String, Command> stringToCommand;
 
+	/**
+	 * Constructor to initialize all the fields.
+	 * @param controller - The controller that this View use.
+	 */
 	public MyView(Controller controller) {
 		super(controller);
 		in = new BufferedReader(new InputStreamReader(System.in));
@@ -25,17 +35,28 @@ public class MyView extends CommonView {
 		cli = new CLI(in,out);
 	}
 
+	/**
+	 * Starting the CLI.
+	 */
 	@Override
 	public void start() {
 		cli.start();		
 	}
 
+	/**
+	 * Set the list of commands that supported by the controller.
+	 * @param stringToCommand - Hash map with the key-name of commands and the value of command.
+	 */
 	@Override
 	public void setStringToCommand(HashMap<String, Command> stringToCommand) {
 		this.stringToCommand = stringToCommand;
 		cli.setStringToCommand(stringToCommand);		
 	}
 
+	/**
+	 * Display a list of files/directories for specific path.
+	 * @param dirArray - Array of string , containing  files/directories.
+	 */
 	@Override
 	public void displayDirPath(String[] dirArray) {
 		System.out.println("Files and directories in this path: ");
@@ -44,16 +65,29 @@ public class MyView extends CommonView {
 		}
 	}
 
+	/**
+	 * Displays an error message.
+	 * @param msg - Error message.
+	 */
 	@Override
 	public void displayError(String msg) {
 		System.out.println(msg);
 	}
 
+	/**
+	 * Displays a 3d maze that was generated successfully and ready..
+	 * @param msg - Message says that the maze is ready.
+	 */
 	@Override
 	public void displayGenerate3dMaze(String msg) {
 		System.out.println(msg);		
 	}
 
+	/**
+	 * Displays a 3d maze that generated.
+	 * @param byteArray - Byte array representing the maze 3d.
+	 * @throws Exception exception
+	 */
 	@Override
 	public void displayMaze(byte[] byteArray) throws Exception {
 		Maze3d maze;
@@ -71,6 +105,10 @@ public class MyView extends CommonView {
 		}		
 	}
 
+	/**
+	 * Display he cross section that the client asked for.
+	 * @param crossSection - Cross section , a matrix (2d array).
+	 */
 	@Override
 	public void displayCrossSection(int[][] crossSection) {
 		for(int i = 0; i < crossSection.length; i++)
@@ -84,21 +122,37 @@ public class MyView extends CommonView {
 		
 	}
 
+	/**
+	 * Display a message that saying the maze has been saved.
+	 * @param str - Message that saying - the maze has been saved.
+	 */
 	@Override
 	public void displaySaveMaze(String str) {
 		System.out.println(str);		
 	}
 
+	/**
+	 * Display a message that saying the maze has been loaded.
+	 * @param str - Message that saying - the maze has been loaded.
+	 */
 	@Override
 	public void displayLoadMaze(String str) {
 		System.out.println(str);
 	}
 
+	/**
+	 * Display a message that the maze was solved.
+	 * @param msg - Message that the maze was solved.
+	 */
 	@Override
 	public void displaySolutionReady(String msg) {
 		System.out.println(msg);
 	}
 
+	/**
+	 * Display the solution of the maze.
+	 * @param solution - Solution of the maze.
+	 */
 	@Override
 	public void displaySolution(Solution<String> solution) {
 		System.out.println(solution);

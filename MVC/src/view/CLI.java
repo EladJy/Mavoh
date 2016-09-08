@@ -9,12 +9,24 @@ import java.util.HashMap;
 
 import controller.Command;
 
+/**
+ * The class is responsible to get correct user input</br>
+ * And to sent this information to the controller.
+ * @author Elad Jarby
+ * @version 1.0
+ * @since 06.09.2016
+ */
 public class CLI extends Thread {
 
 	BufferedReader in;
 	PrintWriter out;
 	HashMap<String,Command> stringToCommand;
 
+	/**
+	 * Constructor to initialize the CLI.
+	 * @param in - Input reader.
+	 * @param out - Output writer.
+	 */
 	public CLI(BufferedReader in , PrintWriter out) {
 		super();
 		this.in= in;
@@ -22,6 +34,9 @@ public class CLI extends Thread {
 
 	}
 
+	/**
+	 * Starting the CLI.
+	 */
 	public void start() {
 		printInstructions();
 
@@ -76,10 +91,17 @@ public class CLI extends Thread {
 		}).start();
 	}
 
+	/**
+	 * Set the list of commands the is supported by the controller.
+	 * @param stringToCommand - Hash map with the key-name of commands and the value of command.
+	 */
 	public void setStringToCommand(HashMap<String, Command> stringToCommand) {
 		this.stringToCommand = stringToCommand;
 	}
 
+	/**
+	 * Print all the instructions in CLI.
+	 */
 	private void printInstructions() {
 		System.out.println("================================================================================");
 		System.out.println("=========================== Hello , Welcome to my CLI! =========================");

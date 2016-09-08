@@ -7,6 +7,13 @@ import model.MyModel;
 import view.MyView;
 import view.View;
 
+/**
+ * Run the program!
+ * @author Elad Jarby
+ * @version 1.0
+ * @since 06.09.2016
+ *
+ */
 public class Run {
 	public static void main(String[] args) {
 		Controller controller = new MyController();

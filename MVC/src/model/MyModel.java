@@ -10,7 +10,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -31,11 +30,21 @@ import controller.Controller;
 import io.MyCompressorOutputStream;
 import io.MyDecompressorInputStream;
 
+/**
+ * Generate the code behind each command.
+ * @author Elad Jarby
+ * @version 1.0
+ * @since 06.09.2016
+ */
 public class MyModel extends CommonModel {
 	HashMap<String, Maze3d> mazes;
 	HashMap<Maze3d, Solution<String>> mazeSolutions;
 	ExecutorService threadPool;
 
+	/**
+	 * Constructor to initialize all the variables.
+	 * @param controller - The controller that this Model use, All the solutions for problems passing through this controller.
+	 */
 	public MyModel(Controller controller) {
 		super(controller);
 		mazes = new HashMap<String, Maze3d>();
@@ -43,6 +52,10 @@ public class MyModel extends CommonModel {
 		mazeSolutions = new HashMap<Maze3d, Solution<String>>();
 	}
 
+	/**
+	 * Handling with command: dir < path ></br>
+	 * @param dirArray - Array of string , containing string with path.
+	 */
 	@Override
 	public void dirPath(String[] dirArray) {
 		if(dirArray.length != 1) {
@@ -64,6 +77,12 @@ public class MyModel extends CommonModel {
 		controller.displayDirPath(file.list());
 	}
 
+	/**
+	 * Handling with command:</br> 
+	 * generate_3d_maze < maze name > < floors > < width > < length > < algorithm ></br>
+	 * <b>Algorithms:</b> simple , growing-last , growing-random.
+	 * @param arr - Array of string with the parameters.
+	 */
 	@Override
 	public void generate3dMaze(String[] arr) {
 		String mazeName = arr[0];
@@ -107,6 +126,10 @@ public class MyModel extends CommonModel {
 
 	}
 
+	/**
+	 * Handling with command: display < maze name >
+	 * @param arr - Array of one string , containing the maze name that need to display.
+	 */
 	@Override
 	public void getMaze(String[] arr) {
 		if (arr.length != 1) {
@@ -127,6 +150,12 @@ public class MyModel extends CommonModel {
 		}
 	}
 
+	/**
+	 * Handling with command: display_cross_section < axis > < index > < maze name ></br>
+	 * <b>axis:</b> z - for floors , y - for width , x - for length.</br>
+	 * <b>index:</b> can chose from 0 to axis-1 , otherwise return error.
+	 * @param arr - Array of string with the parameters.
+	 */
 	@Override
 	public void getCrossSection(String[] arr) {
 		if (arr.length != 3) {
@@ -179,6 +208,12 @@ public class MyModel extends CommonModel {
 		}
 	}
 
+	/**
+	 * Handling with command: save_maze < maze name > < file name ></br>
+	 * <b>maze name:</b> The maze name that need to be save on the file.</br>
+	 * <b>file name:</b> The file name that we need to save maze in.
+	 * @param arr - Array of string with the parameters.
+	 */
 	@Override
 	public void saveMaze(String[] arr) {
 		if (arr.length != 2) {
@@ -217,17 +252,23 @@ public class MyModel extends CommonModel {
 		}
 	}
 
+	/**
+	 * Handling with command: load_maze < file name > < maze name ></br>
+	 * <b>file name:</b> The file name we need to load the maze from.</br>
+	 * <b>maze name:</b> The maze name we want to save from the loaded file.
+	 * @param arr - Array of string with the parameters.
+	 */
 	@Override
 	public void loadMaze(String[] arr) {
 		if (arr.length != 2) {
 			controller.displayError("Invalid number of parameters");
 			return;
 		}
-		
+
 		String fileName = arr[0];
 		File file = new File(fileName);
 		String mazeName = arr[1];
-		
+
 		if (mazes.containsKey(mazeName)) {
 			controller.displayError("Maze already exist , try to load with other name.");
 			return;
@@ -263,7 +304,12 @@ public class MyModel extends CommonModel {
 		}
 	}
 
-
+	/**
+	 * Handling with command: solve < maze name > < algorithm ></br>
+	 * Solves the specific maze with algorithm.</b></br>
+	 * <b>alogirthm:</b> dfs or bfs.
+	 * @param arr - Array of string with the parameters.
+	 */
 	@Override
 	public void getSolutionReady(String[] arr) {
 		if (arr.length != 2) {
@@ -306,6 +352,11 @@ public class MyModel extends CommonModel {
 
 	}
 
+	/**
+	 * Handling with command: display_solution < maze name ></br>
+	 * Display existing solution.
+	 * @param arr - Array of one string , containing the maze name that need to display his solution.
+	 */
 	@Override
 	public void getSolution(String[] arr) {
 		if (arr.length != 1) {
@@ -327,14 +378,21 @@ public class MyModel extends CommonModel {
 		}
 	}
 
+	/**
+	 * Closing all running threads.
+	 */
 	@Override
-	public void exitCommand(String[] emptyArr) {
+	public void exitCommand() {
 		threadPool.shutdown();
-		try {
-			while(!(threadPool.awaitTermination(10, TimeUnit.SECONDS)));
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		boolean terminated = false;
+		while(!terminated)
+		{
+			try {
+				terminated = (threadPool.awaitTermination(10, TimeUnit.SECONDS));
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 	}
