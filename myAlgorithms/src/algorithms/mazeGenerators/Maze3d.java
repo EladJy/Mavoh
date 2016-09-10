@@ -171,7 +171,7 @@ public class Maze3d {
 		ArrayList<String> moves = new ArrayList<String>();
 		Position temp;
 		//Checks if there is path to right
-		if(p.getX()<length&&maze3d[(p.getZ())][p.getY()][p.getX()+1]==0)
+		if(p.getX()<length-1&&maze3d[(p.getZ())][p.getY()][p.getX()+1]==0)
 		{
 			temp=new Position(p.getZ(),p.getY(),p.getX()+1);
 			moves.add(temp.getPosition());
@@ -183,7 +183,7 @@ public class Maze3d {
 			moves.add(temp.getPosition());
 		}
 		//Checks if there is path to up
-		if(p.getY()<width &&maze3d[p.getZ()][p.getY()+1][p.getX()]==0)
+		if(p.getY()<width-1 &&maze3d[p.getZ()][p.getY()+1][p.getX()]==0)
 		{
 			temp=new Position(p.getZ(),p.getY()+1,p.getX());
 			moves.add(temp.getPosition());
@@ -195,7 +195,7 @@ public class Maze3d {
 			moves.add(temp.getPosition());
 		}
 		//Checks if there is path forward
-		if(p.getZ()<floors&&maze3d[p.getZ()+1][p.getY()][p.getX()]==0)
+		if(p.getZ()<floors-1 &&maze3d[p.getZ()+1][p.getY()][p.getX()]==0)
 		{
 			temp=new Position(p.getZ()+1,p.getY(),p.getX());
 			moves.add(temp.getPosition());

@@ -222,15 +222,15 @@ public class MyModel extends CommonModel {
 		}
 		String mazeName = arr[0];
 		String fileName = arr[1];
-		File file = new File(fileName);
+//		File file = new File(fileName);
 		if (!mazes.containsKey(mazeName)) {
 			controller.displayError("There is no maze with the name: " + mazeName);
 			return;
 		}
-		if(file.exists() && !file.isDirectory()) {
-			controller.displayError("File already exist or is directory , try another name.");
-			return;
-		}
+//		if(file.exists() && !file.isDirectory()) {
+//			controller.displayError("File already exist or is directory , try another name.");
+//			return;
+//		}
 		Maze3d maze = mazes.get(mazeName);
 		byte[] mazeInBytes = maze.toByteArray();
 
@@ -269,10 +269,10 @@ public class MyModel extends CommonModel {
 		File file = new File(fileName);
 		String mazeName = arr[1];
 
-		if (mazes.containsKey(mazeName)) {
-			controller.displayError("Maze already exist , try to load with other name.");
-			return;
-		}
+//		if (mazes.containsKey(mazeName)) {
+//			controller.displayError("Maze already exist , try to load with other name.");
+//			return;
+//		}
 		if(!file.exists() || file.isDirectory()) {
 			controller.displayError("File not exist / it is directory!");
 			return;
