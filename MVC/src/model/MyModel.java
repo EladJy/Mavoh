@@ -346,7 +346,7 @@ public class MyModel extends CommonModel {
 				}
 
 				mazeSolutions.put(maze, searchAlgorithm.Search(mazeSearch));
-				controller.displaySolutionReady("Solution for: " + mazeName + "is ready!");
+				controller.displaySolutionReady("Solution for: " + mazeName + " is ready!");
 			}
 		});
 
