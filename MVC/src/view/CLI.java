@@ -102,20 +102,21 @@ public class CLI extends Thread {
 	 * Print all the instructions in CLI.
 	 */
 	private void printInstructions() {
-		System.out.println("=======================================================================================================");
-		System.out.println("======================================= Hello , Welcome to my CLI! ====================================");
-		System.out.println("=======================================================================================================");
-		System.out.println(">> 1)  dir <path>                                                                                    <<");
-		System.out.println(">> 2)  generate_3d_maze <maze name> <z> <y> <x> <algorithm> (simple,growing-last,growing-random)     <<");
-		System.out.println(">> 4)  display_cross_section <axis> <index> <maze name>                                              <<");
-		System.out.println(">> 3)  display <maze name>                                                                           <<");
-		System.out.println(">> 5)  save_maze <maze name> <file name>                                                             <<");
-		System.out.println(">> 6)  load_maze <file name> <maze name>                                                             <<");
-		System.out.println(">> 7)  solve <maze name> <algorithm>                                                                 <<");
-		System.out.println(">> 8)  display_solution <maze name>                                                                  <<");
-		System.out.println(">> 9)  exit                                                                                          <<");
-		System.out.println(">> 10) help                                                                                          <<");
-		System.out.println("=======================================================================================================");
+		out.println("=======================================================================================================");
+		out.println("======================================= Hello , Welcome to my CLI! ====================================");
+		out.println("=======================================================================================================");
+		out.println(">> 1)  dir <path>                                                                                    <<");
+		out.println(">> 2)  generate_3d_maze <maze name> <z> <y> <x> <algorithm> (simple,growing-last,growing-random)     <<");
+		out.println(">> 4)  display_cross_section <axis> <index> <maze name>                                              <<");
+		out.println(">> 3)  display <maze name>                                                                           <<");
+		out.println(">> 5)  save_maze <maze name> <file name>                                                             <<");
+		out.println(">> 6)  load_maze <file name> <maze name>                                                             <<");
+		out.println(">> 7)  solve <maze name> <algorithm>                                                                 <<");
+		out.println(">> 8)  display_solution <maze name>                                                                  <<");
+		out.println(">> 9)  exit                                                                                          <<");
+		out.println(">> 10) help                                                                                          <<");
+		out.println("=======================================================================================================");
+		out.flush();
 	}
 
 }

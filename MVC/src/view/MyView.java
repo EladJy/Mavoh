@@ -61,7 +61,8 @@ public class MyView extends CommonView {
 	public void displayDirPath(String[] dirArray) {
 		System.out.println("Files and directories in this path: ");
 		for(String s:dirArray) {
-			System.out.println(s);
+			out.println(s);
+			out.flush();
 		}
 	}
 
@@ -71,7 +72,8 @@ public class MyView extends CommonView {
 	 */
 	@Override
 	public void displayError(String msg) {
-		System.out.println(msg);
+		out.println(msg);
+		out.flush();
 	}
 
 	/**
@@ -80,7 +82,8 @@ public class MyView extends CommonView {
 	 */
 	@Override
 	public void displayGenerate3dMaze(String msg) {
-		System.out.println(msg);		
+		out.println(msg);		
+		out.flush();
 	}
 
 	/**
@@ -95,8 +98,9 @@ public class MyView extends CommonView {
 			maze = new Maze3d(byteArray);
 			for(int z=0; z < maze.getHeight(); z++)
 			{
-				System.out.println();
-				System.out.println("Level: "+z);
+				out.println();
+				out.println("Level: "+z);
+				out.flush();
 				displayCrossSection(maze.getCrossSectionByZ(z));
 			}
 		} catch (IOException e) {
@@ -115,10 +119,11 @@ public class MyView extends CommonView {
 		{
 			for(int j = 0; j < crossSection[0].length; j++)
 			{
-				System.out.print(crossSection[i][j] + " ");
+				out.print(crossSection[i][j] + " ");
 			}
-			System.out.println();
+			out.println();
 		}	
+		out.flush();
 		
 	}
 
@@ -128,7 +133,8 @@ public class MyView extends CommonView {
 	 */
 	@Override
 	public void displaySaveMaze(String str) {
-		System.out.println(str);		
+		out.println(str);
+		out.flush();
 	}
 
 	/**
@@ -137,7 +143,8 @@ public class MyView extends CommonView {
 	 */
 	@Override
 	public void displayLoadMaze(String str) {
-		System.out.println(str);
+		out.println(str);
+		out.flush();
 	}
 
 	/**
@@ -146,7 +153,8 @@ public class MyView extends CommonView {
 	 */
 	@Override
 	public void displaySolutionReady(String msg) {
-		System.out.println(msg);
+		out.println(msg);
+		out.flush();
 	}
 
 	/**
@@ -155,7 +163,8 @@ public class MyView extends CommonView {
 	 */
 	@Override
 	public void displaySolution(Solution<String> solution) {
-		System.out.println(solution);
+		out.println(solution);
+		out.flush();
 	}
 
 }
