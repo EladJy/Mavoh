@@ -59,11 +59,11 @@ public class MyView extends CommonView {
 	 */
 	@Override
 	public void displayDirPath(String[] dirArray) {
-		System.out.println("Files and directories in this path: ");
+		out.println("Files and directories in this path: ");
 		for(String s:dirArray) {
 			out.println(s);
-			out.flush();
 		}
+		out.flush();
 	}
 
 	/**
