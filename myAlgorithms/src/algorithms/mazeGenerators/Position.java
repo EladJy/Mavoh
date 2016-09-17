@@ -1,11 +1,17 @@
 package algorithms.mazeGenerators;
 
+import java.io.Serializable;
+
 /**
  * Position in maze by using x,y,z values.
  * @author Elad Jarby
  *
  */
-public class Position {
+public class Position implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2493392750999076134L;
 	private int x;
 	private int y;
 	private int z;

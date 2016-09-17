@@ -1,12 +1,18 @@
 package algorithms.search;
 
+import java.io.Serializable;
+
 /**
  * Define a state in the searching problem.
  * @author Elad Jarby
  *
  * @param <T> - Generic type of the state.
  */
-public class State<T> implements Comparable<State<T>> {
+public class State<T> implements Comparable<State<T>> , Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9011115900445010262L;
 	private State<T> cameFrom;
 	private double cost;
 	private T value;

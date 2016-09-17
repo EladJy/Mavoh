@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -16,7 +17,11 @@ import java.util.ArrayList;
  * @author Elad Jarby
  * @version 1.1
  */
-public class Maze3d {
+public class Maze3d implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7935156647914177853L;
 	private int[][][] maze3d;//x-axis,y-axis,z-axis
 	private int length;
 	private int width;

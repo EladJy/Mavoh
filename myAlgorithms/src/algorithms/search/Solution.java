@@ -1,5 +1,7 @@
 package algorithms.search;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Stack;
 
 /**
@@ -8,21 +10,25 @@ import java.util.Stack;
  *
  * @param <T> - Generic type of the state.
  */
-public class Solution<T> {
-	private Stack<State<T>> states;
+public class Solution<T> implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7298147175019582597L;
+	private ArrayList<State<T>> states;
 	
 	/**
 	 * Default Constructor , Initialize the stuck.
 	 */
 	public Solution() {
-		states = new Stack<State<T>>();
+		states = new ArrayList<State<T>>();
 	}
 	
 	/**
 	 * Constructor , Initialize the stuck from the given stuck.
 	 * @param states - Stack of states.
 	 */
-	public Solution (Stack<State<T>> states) {
+	public Solution (ArrayList<State<T>> states) {
 		this.states = states;
 	}
 	
@@ -31,7 +37,7 @@ public class Solution<T> {
 	 * @param state - State that we need to add to the stuck.
 	 */
 	public void addStateToSolution(State<T> state) {
-		states.push(state);
+		states.add(state);
 	}
 	
 	/**
@@ -56,11 +62,13 @@ public class Solution<T> {
 	 */
 	@Override
 	public String toString() {
-		String str="Solution is: ";
-		while(!states.isEmpty())
-		{
-			str=str+states.pop().getValue().toString()+" ";
+		StringBuilder str = new StringBuilder();
+		str.append("Solution is: ");
+		for( int i=0; i<states.size(); i++){
+			
+			str.append(""+ states.get(i).getValue()+" ");
 		}
-		return str;
+		
+		return str.toString();
 	}
 }

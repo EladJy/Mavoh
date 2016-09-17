@@ -1,5 +1,7 @@
 package model;
 
+import algorithms.search.Solution;
+
 public interface Model {
 	/**
 	 * Handling with command: dir < path ></br>
@@ -27,7 +29,7 @@ public interface Model {
 	 * <b>index:</b> can chose from 0 to axis-1 , otherwise return error.
 	 * @param arr - Array of string with the parameters.
 	 */
-	public void getCrossSection(String[] arr) ;
+	public void crossSection(String[] arr) ;
 
 	/**
 	 * Handling with command: save_maze < maze name > < file name ></br>
@@ -66,7 +68,17 @@ public interface Model {
 	 */
 	public void exitCommand();
 	
+	public void saveMazesAndSolutions();
+	
+	public void loadMazesAndSolutions();
+	
 	public byte[] getMazeFromHashMap(String maze);
+	
+	public Solution<String> getSolutionFromHashMap(String maze);
+	
+	public int[][] getCrossSection();
+	
+	public String[] getList();
 	
 	public String getMessage();
 }

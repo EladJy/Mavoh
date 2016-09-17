@@ -1,5 +1,6 @@
 package presenter;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
@@ -12,32 +13,47 @@ public class Presenter implements Observer {
 	private View view;
 	private HashMap<String, Command> commands;
 	private CommandsManager commandsManager;
-	
+
 	public Presenter(Model model , View view) {
 		this.model = model;
 		this.view = view;
 		commandsManager = new CommandsManager(this.model , this.view);
 		commands = commandsManager.getCommandsMap();
+		intializeIfZipped();
 	}
-	
+
 	@Override
 	public void update(Observable o, Object arg) {
-		String commandLine = (String)arg;
-		String arr[] = commandLine.split(" ");
-		String command = arr[0];
-		
-		if(!commands.containsKey(command)) {
-			view.displayError("Command doesn't exist!");
-		} else {
-			String[] args = null;
-			if(arr.length > 1) {
-				String commandArgs = commandLine.substring(commandLine.indexOf(" ") +1);
-				args = commandArgs.split(" ");
+		if(o == view) {
+			String commandLine = (String)arg;
+			String arr[] = commandLine.split(" ");
+			String command = arr[0];
+
+			if(!commands.containsKey(command)) {
+				view.displayError("Command doesn't exist!");
+			} else {
+				String[] args = null;
+				if(arr.length > 1) {
+					String commandArgs = commandLine.substring(commandLine.indexOf(" ") +1);
+					args = commandArgs.split(" ");
+				}
+				Command cmd = commands.get(command);
+				cmd.doCommand(args);
 			}
-			Command cmd = commands.get(command);
-			cmd.doCommand(args);
+		} else if(o == model) {
+			String commandLine = (String)arg;
+			Command cmd = commands.get(commandLine);
+			cmd.doCommand(null);
 		}
 
+	}
+	
+	public void intializeIfZipped(){
+		File solutions = new File("Solutions.zip");
+		File mazes = new File("Mazes.zip");
+		if(solutions.exists() || mazes.exists()) {
+			model.loadMazesAndSolutions();
+		}
 	}
 
 }
