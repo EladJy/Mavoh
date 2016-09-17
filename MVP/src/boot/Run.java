@@ -17,7 +17,7 @@ public class Run {
 		PrintWriter out = new PrintWriter(System.out);
 				
 		MyView view = new MyView(in, out);
-		MyModel model = new MyModel();
+		MyModel model = new MyModel(args);
 		
 		Presenter presenter = new Presenter(model, view);
 		model.addObserver(presenter);

@@ -1,6 +1,7 @@
 package model;
 
 import algorithms.search.Solution;
+import presenter.Properties;
 
 public interface Model {
 	/**
@@ -66,6 +67,9 @@ public interface Model {
 	 * Closing all running threads.
 	 * @param emptyArr - There is nothing in the array.
 	 */
+	
+	public void loadProperties();
+	
 	public void exitCommand();
 	
 	public void saveMazesAndSolutions();
@@ -81,4 +85,8 @@ public interface Model {
 	public String[] getList();
 	
 	public String getMessage();
+
+	public void saveProperties(String[] arr);
+	
+	public Properties getProperties();
 }

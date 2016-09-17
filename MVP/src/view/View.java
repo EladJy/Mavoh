@@ -1,6 +1,7 @@
 package view;
 
 import algorithms.search.Solution;
+import presenter.Properties;
 public interface View {
 	/**
 	 * Starting the user interface.
@@ -40,4 +41,6 @@ public interface View {
 	 * @param solution - Solution of the maze.
 	 */
 	public void displaySolution(Solution<String> solution);
+	
+	public void displayProperties(Properties p);
 }

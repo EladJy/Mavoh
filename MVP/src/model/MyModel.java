@@ -1,5 +1,7 @@
 package model;
 
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -34,6 +36,7 @@ import algorithms.search.Searcher;
 import algorithms.search.Solution;
 import io.MyCompressorOutputStream;
 import io.MyDecompressorInputStream;
+import presenter.Properties;
 
 public class MyModel extends Observable implements Model {
 
@@ -43,9 +46,11 @@ public class MyModel extends Observable implements Model {
 	private String message;
 	private int[][] crossSection;
 	private String[] fileList;
+	private Properties properties;
 
-	public MyModel() {
-		threadPool = Executors.newFixedThreadPool(10);
+	public MyModel(String[] path) {
+		loadProperties(path);
+		threadPool = Executors.newFixedThreadPool(properties.getNumberOfThreads());
 		mazes = new HashMap<String, Maze3d>();
 		mazeSolutions = new HashMap<String, Solution<String>>();
 	}
@@ -80,7 +85,7 @@ public class MyModel extends Observable implements Model {
 
 	@Override
 	public void generate3dMaze(String[] arr) {
-		if(arr == null || arr.length != 5) {
+		if(arr == null || arr.length != 4) {
 			setChanged();
 			message = "Invalid number of parameters";
 			notifyObservers("error");
@@ -90,7 +95,7 @@ public class MyModel extends Observable implements Model {
 		int x = Integer.parseInt(arr[1]);
 		int y = Integer.parseInt(arr[2]);
 		int z = Integer.parseInt(arr[3]);
-		String algorithm = arr[4];
+		String algorithm = properties.getDefaultAlgorithm();
 		if( x < 1 || y < 1 || z < 1 ) {
 			setChanged();
 			message = "Error on (z,y,x) , Must be positive numbers";
@@ -102,11 +107,11 @@ public class MyModel extends Observable implements Model {
 			@Override
 			public Maze3d call() throws Exception {
 				Maze3dGenerator mg = null;
-				if(algorithm.intern() == "simple") {
+				if(algorithm.equals("simple")) {
 					mg = new SimpleMaze3dGenerator();
-				} else if (algorithm.intern() == "growing-random") {
+				} else if (algorithm.equals("growing-random")) {
 					mg = new GrowingTreeGenerator(new GrowingTreeRandomCell());
-				} else if (algorithm.intern() == "growing-last") {
+				} else if (algorithm.equals("growing-last")) {
 					mg = new GrowingTreeGenerator(new GrowingTreeLastCell());
 				} else {
 					setChanged();
@@ -323,14 +328,14 @@ public class MyModel extends Observable implements Model {
 
 	@Override
 	public void getSolutionReady(String[] arr) {
-		if (arr == null || arr.length != 2) {
+		if (arr == null || arr.length != 1) {
 			setChanged();
 			message = "Invalid number of parameters";
 			notifyObservers("error");
 			return;
 		}
 		String mazeName = arr[0];
-		String algorithm = arr[1];
+		String algorithm = properties.getSearchAlgorithm();
 		Maze3d maze=mazes.get(mazeName);
 		if (!mazes.containsKey(mazeName)) {
 			setChanged();
@@ -415,7 +420,7 @@ public class MyModel extends Observable implements Model {
 				e.printStackTrace();
 			}
 		}
-		
+
 	}
 
 	@Override
@@ -461,7 +466,7 @@ public class MyModel extends Observable implements Model {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		try {
 			FileInputStream fis = new FileInputStream("Mazes.zip");
 			GZIPInputStream gz = new GZIPInputStream(fis);
@@ -474,6 +479,48 @@ public class MyModel extends Observable implements Model {
 			e.printStackTrace();
 		}
 
+	}
+
+	public void loadProperties(String[] path) {
+		StringBuilder sb = new StringBuilder();
+		if(path == null) {
+			sb.append("./resources/properties.xml");
+		}
+		if(path.length == 0) {
+			sb.append("./resources/properties.xml");
+		}
+		else if(path[0] == "null") {
+			sb.append("./resources/properties.xml");
+		}
+		else {
+			for (int i = 0; i < path.length; i++) {
+				if(i == path.length - 1) {
+					sb.append(path[i]);
+				} else {
+					sb.append(path[i] + " ");
+				}
+			}
+		}
+
+		try {
+			File file = new File(sb.toString());
+			if(!file.exists() || file.isDirectory()) {
+				XMLEncoder xmle;
+				xmle = new XMLEncoder(new FileOutputStream(sb.toString()));
+				xmle.writeObject(new Properties(10,"growing-random", "dfs" , 10,"gui"));
+				xmle.close();
+			}
+			
+			XMLDecoder xmld = new XMLDecoder(new FileInputStream(sb.toString()));
+			properties = (Properties)xmld.readObject();
+			xmld.close();
+			
+			setChanged();
+			notifyObservers("load_properties");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	@Override
 	public byte[] getMazeFromHashMap(String maze) {
@@ -495,4 +542,19 @@ public class MyModel extends Observable implements Model {
 	public String getMessage() {
 		return message;
 	}
+
+	public Properties getProperties() {
+		return properties;
+	}
+	@Override
+	public void loadProperties() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void saveProperties(String[] arr) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

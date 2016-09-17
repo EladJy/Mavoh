@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.8.0_102" class="java.beans.XMLDecoder">
+ <object class="presenter.Properties">
+  <void property="defaultAlgorithm">
+   <string>growing-last</string>
+  </void>
+  <void property="maxMazeSize">
+   <int>10</int>
+  </void>
+  <void property="numberOfThreads">
+   <int>10</int>
+  </void>
+  <void property="searchAlgorithm">
+   <string>dfs</string>
+  </void>
+  <void property="viewSetup">
+   <string>cli</string>
+  </void>
+ </object>
+</java>
