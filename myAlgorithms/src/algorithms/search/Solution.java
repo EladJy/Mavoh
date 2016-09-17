@@ -2,7 +2,6 @@ package algorithms.search;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Stack;
 
 /**
  * Define a solution for the searching problem.
