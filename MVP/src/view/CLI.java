@@ -27,7 +27,6 @@ public class CLI extends Observable {
 						if(commandLine.equals("exit"))
 							break;
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}				
 				}

@@ -70,4 +70,12 @@ public class Solution<T> implements Serializable{
 		
 		return str.toString();
 	}
+
+	public ArrayList<State<T>> getStates() {
+		return states;
+	}
+
+	public void setStates(ArrayList<State<T>> states) {
+		this.states = states;
+	}
 }

@@ -1,6 +1,5 @@
 package model;
 
-import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -37,6 +36,7 @@ import algorithms.search.Solution;
 import io.MyCompressorOutputStream;
 import io.MyDecompressorInputStream;
 import presenter.Properties;
+import presenter.PropertiesLoader;
 
 public class MyModel extends Observable implements Model {
 
@@ -46,10 +46,12 @@ public class MyModel extends Observable implements Model {
 	private String message;
 	private int[][] crossSection;
 	private String[] fileList;
+	private String mazeName;
 	private Properties properties;
 
 	public MyModel(String[] path) {
-		loadProperties(path);
+		intializeIfZipped();
+		properties = PropertiesLoader.getInstance().getProperties();
 		threadPool = Executors.newFixedThreadPool(properties.getNumberOfThreads());
 		mazes = new HashMap<String, Maze3d>();
 		mazeSolutions = new HashMap<String, Solution<String>>();
@@ -91,7 +93,7 @@ public class MyModel extends Observable implements Model {
 			notifyObservers("error");
 			return;
 		}
-		String mazeName = arr[0];
+		mazeName = arr[0];
 		int x = Integer.parseInt(arr[1]);
 		int y = Integer.parseInt(arr[2]);
 		int z = Integer.parseInt(arr[3]);
@@ -142,7 +144,7 @@ public class MyModel extends Observable implements Model {
 			notifyObservers("error");
 			return;
 		}
-		String mazeName = arr[0];
+		mazeName = arr[0];
 		if(!mazes.containsKey(mazeName)) {
 			setChanged();
 			message = "There is no maze with the name: " + mazeName;
@@ -168,7 +170,7 @@ public class MyModel extends Observable implements Model {
 			return;
 		}
 		Maze3d maze;
-		String mazeName = arr[2];
+		mazeName = arr[2];
 		String axis = arr[0];
 		int index = Integer.parseInt(arr[1]);
 		maze = mazes.get(mazeName);
@@ -237,7 +239,7 @@ public class MyModel extends Observable implements Model {
 			notifyObservers("error");
 			return;
 		}
-		String mazeName = arr[0];
+		mazeName = arr[0];
 		String fileName = arr[1];
 		//		File file = new File(fileName);
 		if (!mazes.containsKey(mazeName)) {
@@ -255,7 +257,7 @@ public class MyModel extends Observable implements Model {
 
 		MyCompressorOutputStream out;
 		try {
-			out = new MyCompressorOutputStream(new FileOutputStream(fileName));
+			out = new MyCompressorOutputStream(new FileOutputStream(fileName+".maz"));
 			out.write(ByteBuffer.allocate(4).putInt(mazeInBytes.length).array());
 			out.write(mazeInBytes);
 			setChanged();
@@ -282,9 +284,9 @@ public class MyModel extends Observable implements Model {
 			return;
 		}
 
-		String fileName = arr[0];
+		String fileName = arr[0] + ".maz";
 		File file = new File(fileName);
-		String mazeName = arr[1];
+		mazeName = arr[1];
 
 		//		if (mazes.containsKey(mazeName)) {
 		//			controller.displayError("Maze already exist , try to load with other name.");
@@ -334,7 +336,7 @@ public class MyModel extends Observable implements Model {
 			notifyObservers("error");
 			return;
 		}
-		String mazeName = arr[0];
+		mazeName = arr[0];
 		String algorithm = properties.getSearchAlgorithm();
 		Maze3d maze=mazes.get(mazeName);
 		if (!mazes.containsKey(mazeName)) {
@@ -386,7 +388,7 @@ public class MyModel extends Observable implements Model {
 			notifyObservers("error");
 			return;
 		}
-		String mazeName = arr[0];
+		mazeName = arr[0];
 		//Maze3d maze=mazes.get(mazeName);
 		if (!mazes.containsKey(mazeName)) {
 			setChanged();
@@ -481,50 +483,91 @@ public class MyModel extends Observable implements Model {
 
 	}
 
-	public void loadProperties(String[] path) {
-		StringBuilder sb = new StringBuilder();
-		if(path == null) {
-			sb.append("./resources/properties.xml");
-		}
-		if(path.length == 0) {
-			sb.append("./resources/properties.xml");
-		}
-		else if(path[0] == "null") {
-			sb.append("./resources/properties.xml");
-		}
-		else {
-			for (int i = 0; i < path.length; i++) {
-				if(i == path.length - 1) {
-					sb.append(path[i]);
-				} else {
-					sb.append(path[i] + " ");
-				}
-			}
-		}
-
-		try {
-			File file = new File(sb.toString());
-			if(!file.exists() || file.isDirectory()) {
-				XMLEncoder xmle;
-				xmle = new XMLEncoder(new FileOutputStream(sb.toString()));
-				xmle.writeObject(new Properties(10,"growing-random", "dfs" , 10,"gui"));
-				xmle.close();
-			}
-			
-			XMLDecoder xmld = new XMLDecoder(new FileInputStream(sb.toString()));
-			properties = (Properties)xmld.readObject();
-			xmld.close();
-			
+//	@Override
+//	public void loadProperties(String[] path) {
+//		StringBuilder sb = new StringBuilder();
+//		if(path == null) {
+//			sb.append("./resources/properties.xml");
+//		}
+//		if(path.length == 0) {
+//			sb.append("./resources/properties.xml");
+//		}
+//		else if(path[0] == "null") {
+//			sb.append("./resources/properties.xml");
+//		}
+//		else {
+//			for (int i = 0; i < path.length; i++) {
+//				if(i == path.length - 1) {
+//					sb.append(path[i]);
+//				} else {
+//					sb.append(path[i] + " ");
+//				}
+//			}
+//		}
+//
+//		try {
+//			File file = new File(sb.toString());
+//			if(!file.exists() || file.isDirectory()) {
+//				XMLEncoder xmle;
+//				xmle = new XMLEncoder(new FileOutputStream(sb.toString()));
+//				xmle.writeObject(new Properties(10,"growing-random", "dfs" , 10,"gui"));
+//				xmle.close();
+//			}
+//			
+//			XMLDecoder xmld = new XMLDecoder(new FileInputStream(sb.toString()));
+//			properties = (Properties)xmld.readObject();
+//			xmld.close();
+//			
+//			setChanged();
+//			notifyObservers("load_properties");
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
+	
+	@Override
+	public void saveProperties(String[] arr) {
+		if (arr == null || arr.length != 5) {
 			setChanged();
-			notifyObservers("load_properties");
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			message = "Invalid number of parameters";
+			notifyObservers("error");
+			return;
+		}
+		
+		int numberOfThreads = Integer.parseInt(arr[0]);
+		String algorithm = arr[1];
+		String searchAlgorithm = arr[2];
+		int maxSize = Integer.parseInt(arr[3]);
+		String view = arr[4];
+		
+		try 
+		{
+			XMLEncoder xmlE = new XMLEncoder(new FileOutputStream("./resources/properties.xml"));
+			xmlE.writeObject(new Properties(numberOfThreads, algorithm, searchAlgorithm , maxSize ,view));
+			xmlE.close();
+			properties.setNumberOfThreads(numberOfThreads);
+			properties.setDefaultAlgorithm(algorithm);
+			properties.setSearchAlgorithm(searchAlgorithm);
+			properties.setMaxMazeSize(maxSize);
+			properties.setViewSetup(view);
+			setChanged();
+			notifyObservers("save_properties");
+		} 
+		catch (FileNotFoundException e) 
+		{
 			e.printStackTrace();
 		}
+		
+		
 	}
 	@Override
 	public byte[] getMazeFromHashMap(String maze) {
 		return mazes.get(maze).toByteArray();
+	}
+	
+	public String getMazeName() {
+		return mazeName;
 	}
 
 	public int[][] getCrossSection() {
@@ -546,15 +589,13 @@ public class MyModel extends Observable implements Model {
 	public Properties getProperties() {
 		return properties;
 	}
-	@Override
-	public void loadProperties() {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void saveProperties(String[] arr) {
-		// TODO Auto-generated method stub
-		
+	
+	public void intializeIfZipped(){
+		File solutions = new File("Solutions.zip");
+		File mazes = new File("Mazes.zip");
+		if(solutions.exists() || mazes.exists()) {
+			loadMazesAndSolutions();
+		}
 	}
 
 }

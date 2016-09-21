@@ -1,7 +1,6 @@
 package view;
 
 import algorithms.search.Solution;
-import presenter.Properties;
 public interface View {
 	/**
 	 * Starting the user interface.
@@ -23,6 +22,8 @@ public interface View {
 
 	public void displayMessage(String msg);
 	
+	public void displayMessageWithMaze(byte[] arr , String msg);
+	
 	/**
 	 * Displays a 3d maze that generated.
 	 * @param byteArray - Byte array representing the maze 3d.
@@ -42,5 +43,5 @@ public interface View {
 	 */
 	public void displaySolution(Solution<String> solution);
 	
-	public void displayProperties(Properties p);
+//	public void displayProperties(Properties p);
 }

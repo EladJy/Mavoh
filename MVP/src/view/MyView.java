@@ -8,7 +8,6 @@ import java.util.Observer;
 
 import algorithms.mazeGenerators.Maze3d;
 import algorithms.search.Solution;
-import presenter.Properties;
 
 public class MyView extends Observable implements View , Observer {
 
@@ -86,6 +85,9 @@ public class MyView extends Observable implements View , Observer {
 	}
 	
 	@Override
+	public void displayMessageWithMaze(byte[] arr , String msg) {}
+	
+	@Override
 	public void displayMessage(String msg) {
 		out.println(msg);
 		out.flush();
@@ -97,7 +99,7 @@ public class MyView extends Observable implements View , Observer {
 		out.flush();
 	}
 	
-	public void displayProperties(Properties p) {
-	}
+//	public void displayProperties(Properties p) {
+//	}
 
 }

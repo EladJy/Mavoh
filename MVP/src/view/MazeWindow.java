@@ -1,0 +1,935 @@
+package view;
+
+
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseWheelListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Text;
+
+import algorithms.mazeGenerators.Maze3d;
+import algorithms.mazeGenerators.Position;
+import algorithms.search.Solution;
+import presenter.Properties;
+import presenter.PropertiesLoader;
+
+public class MazeWindow extends BasicWindow implements View {
+	boolean closeWindow;
+	Combo setPerspective;
+	Combo setFloors;
+	Combo setWidth;
+	Combo setLength;
+	Label labelDisplayPosition;
+	Button btnStartGame;
+	Button btnGenerateMaze;
+	Button btnSolveMaze;
+	Button btnDisplaySolution;
+	Button btnGetHints;
+	String mazeName = "elad";
+	String choosenAxis = "";
+	int maxSize;
+	String[] floors = {};
+	String[] widths = {};
+	String[] lengths = {};
+	String[] axis = {"x","y","z"};
+	String[] algorithms = {"simple","growing-last","growing-random"};
+	String[] searchAlgorithms = {"bfs","dfs"};
+	String[] views = {"cli","gui"};
+	Color labelColor = new Color(null,0,0,0,0);
+	Color fontColor = new Color(null,255,255,255);
+	Image buttonImage;
+	Image buttonDisable;
+	Sync sync;
+	MazeDisplay mazeDisplay;
+	Maze3d maze;
+	private Properties properties;
+	private ExecutorService threadPool;
+
+
+	Menu menuBar , fileMenu;
+	MenuItem fileMenuHeader;
+	MenuItem filePropertiesItem , fileSaveMazeItem , fileLoadMazeItem , fileExitItem;
+	public MazeWindow(String title, int width, int height , Sync sync) {
+		super(title, width, height);
+		closeWindow = false;
+		properties = PropertiesLoader.getInstance().getProperties();
+		threadPool = Executors.newFixedThreadPool(properties.getNumberOfThreads());
+		buttonImage = new Image(display, "resources/button.jpg");
+		buttonDisable = new Image(display, "resources/buttonDisable.jpg");
+		setProperties();		
+		this.sync = sync;
+		this.sync.setMazeWindow(this);
+	}
+
+	public void setProperties() {
+		String size;
+		maxSize = properties.getMaxMazeSize();
+		floors = new String[maxSize-2];
+		widths = new String[maxSize-2];
+		lengths = new String[maxSize-2];
+
+		for(int i = 0 ; i < maxSize-2 ; i++) {
+			size = Integer.toString(i+3);
+			floors[i] = size;
+			widths[i] = size;
+			lengths[i] = size;
+		}
+	}
+	@Override
+	void initWidgets() {
+
+		// Create new grid layout with 3 columns
+		GridLayout grid = new GridLayout(3, false);
+		shell.setBackground(new Color(null, 168,26,25));
+		shell.setLayout(grid);
+		GridData gd;
+		// Create a label for perspective settings
+		Label labelPerspective = new Label(shell, SWT.NONE);
+		labelPerspective.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 ,1));
+		labelPerspective.setText("Perspective: ");
+		labelPerspective.setForeground(fontColor);
+		labelPerspective.setBackground(labelColor);
+
+		setPerspective = new Combo(shell, SWT.BORDER | SWT.READ_ONLY); 
+		setPerspective.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 , 1));
+		setPerspective.setItems(axis);
+		gd = new GridData();
+		gd.widthHint = 25;
+		setPerspective.setLayoutData(gd);
+
+		// Create maze display
+		mazeDisplay = new MazeDisplay(shell,SWT.BORDER,sync);
+		mazeDisplay.setLayoutData(new GridData(SWT.FILL , SWT.FILL , true , true , 1 ,10));
+		// Create floors settings for maze
+		Label labelFloor = new Label(shell, SWT.NONE);
+		labelFloor.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 ,1));
+		labelFloor.setText("Floors: ");
+		labelFloor.setForeground(fontColor);
+		labelFloor.setBackground(labelColor);
+
+		setFloors = new Combo(shell, SWT.BORDER | SWT.READ_ONLY); 
+		setFloors.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 , 1));
+		setFloors.setItems(floors);
+		gd = new GridData();
+		gd.widthHint = 25;
+		setFloors.setLayoutData(gd);
+
+		// Create width settings for maze
+		Label labelWidth = new Label(shell, SWT.NONE);
+		labelWidth.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 ,1));
+		labelWidth.setText("Width: ");
+		labelWidth.setForeground(fontColor);
+		labelWidth.setBackground(labelColor);
+
+		setWidth = new Combo(shell, SWT.BORDER | SWT.READ_ONLY); 
+		setWidth.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 , 1));
+		setWidth.setItems(widths);
+		gd = new GridData();
+		gd.widthHint = 25;
+		setWidth.setLayoutData(gd);
+
+		// Create length settings for maze
+		Label labelLength = new Label(shell, SWT.NONE);
+		labelLength.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 ,1));
+		labelLength.setText("Length: ");
+		labelLength.setForeground(fontColor);
+		labelLength.setBackground(labelColor);
+
+		setLength = new Combo(shell, SWT.BORDER | SWT.READ_ONLY); 
+		setLength.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 , 1));
+		setLength.setItems(lengths);
+		gd = new GridData();
+		gd.widthHint = 25;
+		setLength.setLayoutData(gd);
+
+		// Create position settings for character
+		Label labelPosition = new Label(shell, SWT.NONE);
+		labelPosition.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 ,1));
+		labelPosition.setText("Position: ");
+		labelPosition.setForeground(fontColor);
+		labelPosition.setBackground(labelColor);
+
+		labelDisplayPosition = new Label(shell, SWT.BORDER);
+		labelDisplayPosition.setLayoutData(new GridData(SWT.CENTER , SWT.None , false , false , 1 , 1));
+		labelDisplayPosition.setText("None");
+		gd = new GridData();
+		gd.widthHint = 49;
+		gd.heightHint = 20;
+		FontData[] fd = labelDisplayPosition.getFont().getFontData();
+		fd[0].setHeight(10);
+		labelDisplayPosition.setFont(new Font(display, fd[0]));
+		labelDisplayPosition.setLayoutData(gd);
+
+		// Create button for start new game
+		btnStartGame = new Button(shell, SWT.NONE);
+
+		gd = new GridData(SWT.CENTER , SWT.NONE , false , false , 2 , 1);
+		gd.widthHint = 95;
+		btnStartGame.setLayoutData(gd);
+		btnStartGame.addPaintListener(new PaintListener() {
+
+			@Override
+			public void paintControl(PaintEvent arg0) {
+				if(btnStartGame.getEnabled()) 
+					arg0.gc.drawImage(buttonImage, 0, 0);	
+				else 
+					arg0.gc.drawImage(buttonDisable, 0, 0);	
+				arg0.gc.setForeground(fontColor);
+				arg0.gc.drawText("Start new game", 5, 5 , SWT.DRAW_TRANSPARENT);
+
+			}
+		});
+
+		// Create button for generate maze
+		btnGenerateMaze = new Button(shell, SWT.NONE);
+		btnGenerateMaze.setLayoutData(gd);
+		btnGenerateMaze.addPaintListener(new PaintListener() {
+
+			@Override
+			public void paintControl(PaintEvent arg0) {
+				if(btnGenerateMaze.getEnabled()) 
+					arg0.gc.drawImage(buttonImage, 0, 0);		
+				else 
+					arg0.gc.drawImage(buttonDisable, 0, 0);		
+				arg0.gc.setForeground(fontColor);
+				arg0.gc.drawText("Generate maze", 7, 5 , SWT.DRAW_TRANSPARENT);
+			}
+		});
+
+		// Create button for solving maze
+		btnSolveMaze = new Button(shell, SWT.NONE);
+		btnSolveMaze.setLayoutData(gd);
+		btnSolveMaze.addPaintListener(new PaintListener() {
+
+			@Override
+			public void paintControl(PaintEvent arg0) {
+				if(btnSolveMaze.getEnabled())
+					arg0.gc.drawImage(buttonImage, 0, 0);		
+				else 
+					arg0.gc.drawImage(buttonDisable, 0, 0);	
+				arg0.gc.setForeground(fontColor);
+				arg0.gc.drawText("Solve maze", 18, 5 , SWT.DRAW_TRANSPARENT);
+
+			}
+		});
+
+		// Create button for display solution
+		btnDisplaySolution = new Button(shell, SWT.NONE);
+		btnDisplaySolution.setLayoutData(gd);
+		btnDisplaySolution.addPaintListener(new PaintListener() {
+
+			@Override
+			public void paintControl(PaintEvent arg0) {
+				if(btnDisplaySolution.getEnabled())
+					arg0.gc.drawImage(buttonImage, 0, 0);		
+				else 
+					arg0.gc.drawImage(buttonDisable, 0, 0);	
+				arg0.gc.setForeground(fontColor);
+				arg0.gc.drawText("Display solution", 5, 5 , SWT.DRAW_TRANSPARENT);
+
+			}
+		});
+
+		// Create button for get hints
+		btnGetHints = new Button(shell, SWT.NONE);
+		btnGetHints.setLayoutData(gd);
+		btnGetHints.addPaintListener(new PaintListener() {
+
+			@Override
+			public void paintControl(PaintEvent arg0) {
+				if(btnGetHints.isEnabled())
+					arg0.gc.drawImage(buttonImage, 0, 0);		
+				else 
+					arg0.gc.drawImage(buttonDisable, 0, 0);	
+				arg0.gc.setForeground(fontColor);
+				arg0.gc.drawText("Get hints", 22 , 5 , SWT.DRAW_TRANSPARENT);
+
+			}
+		});
+
+		menuBar = new Menu(shell,SWT.BAR);
+		fileMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
+		fileMenuHeader.setText("File");
+
+		fileMenu = new Menu(shell,SWT.DROP_DOWN);
+		fileMenuHeader.setMenu(fileMenu);
+
+		filePropertiesItem = new MenuItem(fileMenu, SWT.PUSH);
+		filePropertiesItem.setText("Properties");
+
+		fileSaveMazeItem = new MenuItem(fileMenu, SWT.PUSH);
+		fileSaveMazeItem.setText("Save maze");
+
+		fileLoadMazeItem = new MenuItem(fileMenu, SWT.PUSH);
+		fileLoadMazeItem.setText("Load maze");
+
+		fileExitItem = new MenuItem(fileMenu, SWT.PUSH);
+		fileExitItem.setText("Exit");
+
+		shell.setMenuBar(menuBar);
+
+		//Shell Listener - Message box when trying to close the window
+		shell.addListener(SWT.Close , new Listener() {
+
+			@Override
+			public void handleEvent(Event e) {
+				int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO;
+				MessageBox msgBox = new MessageBox(shell,style);
+				msgBox.setText("Exit");
+				msgBox.setMessage("Are you sure you want to quit?");
+				if(msgBox.open() == SWT.YES) {
+					mazeDisplay.stopDisplaySolution();
+					setChanged();
+					notifyObservers("exit");
+					threadPool.shutdown();
+					boolean terminated = false;
+					while(!terminated)
+					{
+						try {
+							terminated = (threadPool.awaitTermination(10, TimeUnit.SECONDS));
+						} catch (InterruptedException ex) {
+							ex.printStackTrace();
+						}
+					}
+					e.doit = true;
+					closeWindow = true;
+				} else {
+					e.doit = false;
+				}
+
+			}
+		});
+
+		// Listener for properties in the menu.
+		filePropertiesItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				threadPool.execute(new Runnable() {
+					@Override
+					public void run() {
+						GridData gd;
+						//Create new shell and display for new menu
+						Display displayProperties = new Display();
+						Shell shellProperties = new Shell(displayProperties);
+
+						//Set new grid with 2 columns
+						GridLayout grid = new GridLayout(2 , false);
+						shellProperties.setLayout(grid);
+
+						//Create settings for choose how many threads
+						Label labelNumberOfThreads = new Label(shellProperties,SWT.NONE);
+						labelNumberOfThreads.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 , 1));
+						labelNumberOfThreads.setText("Threads: ");
+						Spinner setMaxThreads = new Spinner(shellProperties, SWT.BORDER | SWT.READ_ONLY);
+						setMaxThreads.setMinimum(5);
+						setMaxThreads.setMaximum(100);
+						setMaxThreads.setIncrement(1);
+						setMaxThreads.pack();
+						setMaxThreads.setSelection(properties.getNumberOfThreads());
+						gd = new GridData();
+						gd.widthHint = 22;
+						setMaxThreads.setLayoutData(gd);
+
+						//Create settings for choose what is the max size for the maze
+						Label labelMaxSize = new Label(shellProperties,SWT.NONE);
+						labelMaxSize.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 , 1));
+						labelMaxSize.setText("Max size: ");
+						Spinner setMaxSize = new Spinner(shellProperties, SWT.BORDER | SWT.READ_ONLY);
+						setMaxSize.setMinimum(3);
+						setMaxSize.setMaximum(60);
+						setMaxSize.setIncrement(1);
+						setMaxSize.pack();
+						setMaxSize.setSelection(properties.getMaxMazeSize());
+						gd = new GridData();
+						gd.widthHint = 22;
+						setMaxSize.setLayoutData(gd);
+						
+						//Create settings for choose search algorithm
+						Label labelSearchAlgorithm = new Label(shellProperties, SWT.NONE);
+						labelSearchAlgorithm.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 , 1));
+						labelSearchAlgorithm.setText("Search Algorithm: ");
+
+						Combo setSearchAlgorithm = new Combo(shellProperties, SWT.BORDER | SWT.READ_ONLY);
+						setSearchAlgorithm.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 , 1));
+						setSearchAlgorithm.setItems(searchAlgorithms);
+						setSearchAlgorithm.setText(properties.getSearchAlgorithm());
+						gd = new GridData();
+						gd.widthHint = 25;
+						setSearchAlgorithm.setLayoutData(gd);
+
+						//Create settings for choose view - CLI or GUI
+						Label labelView = new Label(shellProperties, SWT.NONE);
+						labelView.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 , 1));
+						labelView.setText("View: ");
+
+						Combo setView = new Combo(shellProperties, SWT.BORDER | SWT.READ_ONLY);
+						setView.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 , 1));
+						setView.setItems(views);
+						setView.setText(properties.getViewSetup());
+						gd = new GridData();
+						gd.widthHint = 25;
+						setView.setLayoutData(gd);
+
+						//Create settings for choose algorithm
+						Label labelAlgorithm = new Label(shellProperties, SWT.NONE);
+						labelAlgorithm.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 , 1));
+						labelAlgorithm.setText("Algorithm: ");
+
+						Combo setAlgorithm = new Combo(shellProperties, SWT.BORDER | SWT.READ_ONLY);
+						setAlgorithm.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 , 1));
+						setAlgorithm.setItems(algorithms);
+						setAlgorithm.setText(properties.getDefaultAlgorithm());
+						gd = new GridData();
+						gd.widthHint = 90;
+						setAlgorithm.setLayoutData(gd);
+						
+						//Create close button in the properties menu
+						Button btnClose = new Button(shellProperties, SWT.NONE);
+						btnClose.setText("Close");
+						btnClose.setLayoutData(new GridData(SWT.CENTER , SWT.None , false , false , 1 , 1));
+
+						//Create save button in the properties menu
+						Button btnSave = new Button(shellProperties, SWT.NONE);
+						btnSave.setText("Save");
+						btnSave.setLayoutData(new GridData(SWT.CENTER , SWT.None , false , false , 1 , 1));
+
+						//Listener for close button
+						btnClose.addSelectionListener(new SelectionListener() {
+
+							@Override
+							public void widgetSelected(SelectionEvent arg0) {
+								shellProperties.close();
+								displayProperties.close();								
+							}
+
+							@Override
+							public void widgetDefaultSelected(SelectionEvent arg0){}
+						});
+
+						//Listener for save button
+						btnSave.addSelectionListener(new SelectionListener() {
+
+							@Override
+							public void widgetSelected(SelectionEvent arg0) {
+								String command = "save_properties " + setMaxThreads.getText() + " " + setAlgorithm.getText() +
+										" " + setSearchAlgorithm.getText() + " " + setMaxSize.getText() + " " + setView.getText();
+								setChanged();
+								notifyObservers(command);
+								shellProperties.close();
+								displayProperties.close();
+							}
+
+							@Override
+							public void widgetDefaultSelected(SelectionEvent arg0){}
+						});
+
+						//Display properties menu
+						shellProperties.setSize(250,210);
+						shellProperties.open();
+
+						while(!shellProperties.isDisposed() && !closeWindow) {
+							if(!displayProperties.readAndDispatch())
+								displayProperties.sleep();
+							if(closeWindow) {
+								shellProperties.close();
+								displayProperties.dispose();
+							}
+						}
+					}
+				});
+			}
+		});
+
+		// Listener for save maze in the menu.
+		fileSaveMazeItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				threadPool.execute(new Runnable() {
+					@Override
+					public void run() {
+						//Create new shell and display for new menu
+						Display displaySave = new Display();
+						Shell shellSave = new Shell();
+
+						//Set new grid with 2 columns
+						GridLayout grid = new GridLayout(2 , false);
+						shellSave.setLayout(grid);
+
+						//Create settings for maze name
+						Label labelMazeName = new Label(shellSave , SWT.NONE);
+						labelMazeName.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 , 1));
+						labelMazeName.setText("Maze name: ");
+
+						Text textMazeName = new Text(shellSave , SWT.SINGLE | SWT.BORDER);
+
+						//Create close button in the save menu
+						Button btnClose = new Button(shellSave, SWT.NONE);
+						btnClose.setText("Close");
+						btnClose.setLayoutData(new GridData(SWT.CENTER , SWT.None , false , false , 1 , 1));
+
+						//Create save button in the save menu
+						Button btnSave = new Button(shellSave, SWT.NONE);
+						btnSave.setText("Save");
+						btnSave.setLayoutData(new GridData(SWT.CENTER , SWT.None , false , false , 1 , 1));
+
+						//Listener for close button
+						btnClose.addSelectionListener(new SelectionListener() {
+
+							@Override
+							public void widgetSelected(SelectionEvent arg0) {
+								shellSave.close();
+								displaySave.close();								
+							}
+
+							@Override
+							public void widgetDefaultSelected(SelectionEvent arg0){}
+						});
+
+						//Listener for save button
+						btnSave.addSelectionListener(new SelectionListener() {
+
+							@Override
+							public void widgetSelected(SelectionEvent arg0) {
+								String command = "save_maze " + mazeName + " " + textMazeName.getText();
+								setChanged();
+								notifyObservers(command);
+								shellSave.close();
+								displaySave.close();
+							}
+
+							@Override
+							public void widgetDefaultSelected(SelectionEvent arg0){}
+						});
+
+						//Display save menu
+						shellSave.setSize(175,110);
+						shellSave.open();
+
+						while(!shellSave.isDisposed() && !closeWindow) {
+							if(!displaySave.readAndDispatch())
+								displaySave.sleep();
+							if(closeWindow) {
+								shellSave.close();
+								displaySave.close();
+							}
+						}
+					}
+				});
+			}
+		});
+
+		// Listener for load maze in the menu.
+		fileLoadMazeItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				threadPool.execute(new Runnable() {
+					@Override
+					public void run() {
+						//Create new shell and display for new menu
+						Display displayLoad = new Display();
+						Shell shellLoad = new Shell();
+
+						//Set new grid with 2 columns
+						GridLayout grid = new GridLayout(2 , false);
+						shellLoad.setLayout(grid);
+
+						//Create settings for loading maze with specific name
+						Label labelLoadMazeName = new Label(shellLoad , SWT.NONE);
+						labelLoadMazeName.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 , 1));
+						labelLoadMazeName.setText("Maze to load: ");
+
+						Text textLoadMazeName = new Text(shellLoad , SWT.SINGLE | SWT.BORDER);
+
+						//Create settings for new maze name
+						Label labelNewMazeName = new Label(shellLoad , SWT.NONE);
+						labelNewMazeName.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 , 1));
+						labelNewMazeName.setText("New name: ");
+
+						Text textNewMazeName = new Text(shellLoad , SWT.SINGLE | SWT.BORDER);
+
+						//Create close button in the save menu
+						Button btnClose = new Button(shellLoad, SWT.NONE);
+						btnClose.setText("Close");
+						btnClose.setLayoutData(new GridData(SWT.CENTER , SWT.None , false , false , 1 , 1));
+
+						//Create save button in the save menu
+						Button btnSave = new Button(shellLoad, SWT.NONE);
+						btnSave.setText("Load");
+						btnSave.setLayoutData(new GridData(SWT.CENTER , SWT.None , false , false , 1 , 1));
+
+						//Listener for close button
+						btnClose.addSelectionListener(new SelectionListener() {
+
+							@Override
+							public void widgetSelected(SelectionEvent arg0) {
+								shellLoad.close();
+								displayLoad.close();								
+							}
+
+							@Override
+							public void widgetDefaultSelected(SelectionEvent arg0){}
+						});
+
+						//Listener for save button
+						btnSave.addSelectionListener(new SelectionListener() {
+
+							@Override
+							public void widgetSelected(SelectionEvent arg0) {
+								mazeName = textNewMazeName.getText();
+								String command = "load_maze " + textLoadMazeName.getText() + " " + mazeName;
+								setChanged();
+								notifyObservers(command);
+								shellLoad.close();
+								displayLoad.close();		
+							}
+
+							@Override
+							public void widgetDefaultSelected(SelectionEvent arg0){}
+						});
+
+						//Display load menu
+						shellLoad.setSize(190,140);
+						shellLoad.open();
+
+						while(!shellLoad.isDisposed() && !closeWindow) {
+							if(!displayLoad.readAndDispatch())
+								displayLoad.sleep();
+							if(closeWindow) {
+								shellLoad.close();
+								displayLoad.close();		
+							}
+						}
+					}
+				});
+			}
+		});
+
+		// Listener for exit in the menu.
+		fileExitItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent o) {
+				shell.close();
+			}
+		});
+
+		//Disable the buttons in the GUI
+		setPerspective.setEnabled(false);
+		setFloors.setEnabled(false);
+		setWidth.setEnabled(false);
+		setLength.setEnabled(false);
+		btnGenerateMaze.setEnabled(false);
+		btnSolveMaze.setEnabled(false);
+		btnDisplaySolution.setEnabled(false);
+		btnGetHints.setEnabled(false);
+
+		// Listener for perspective box.
+		setPerspective.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				int index = 0;
+				String axis = setPerspective.getText();
+				if(axis.equals("z")) {
+					index = mazeDisplay.getCurrentPosition().getZ();
+				} else if(axis.equals("y")) {
+					index = mazeDisplay.getCurrentPosition().getY();
+				} else if(axis.equals("x")) {
+					index = mazeDisplay.getCurrentPosition().getX();
+				}
+				String command = "display_cross_section " + setPerspective.getText() + " "  + String.valueOf(index) + " " + mazeName;
+				mazeDisplay.setAxis(setPerspective.getText());
+				choosenAxis = setPerspective.getText();
+				setChanged();
+				notifyObservers(command);
+			}
+		});
+
+		// Listener for start new game box.
+		btnStartGame.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				//Enable GUI buttons
+				setPerspective.setEnabled(true);
+				setFloors.setEnabled(true);
+				setWidth.setEnabled(true);
+				setLength.setEnabled(true);
+				btnGenerateMaze.setEnabled(true);
+
+				int mazeData[][] = new int[1][1];
+				int maze3DArray[][][] = new int[1][1][1];
+				mazeData[0][0] = 0;
+
+				mazeDisplay.setCurrentPosition(new Position(1,1,1));
+				mazeDisplay.setAxis("z");
+				mazeDisplay.set3DMaze(maze3DArray);
+				mazeDisplay.setMazeData(mazeData);
+				mazeDisplay.stopDisplaySolution();
+				mazeDisplay.stopGame();
+				mazeDisplay.setLevel(1);
+				mazeName = "elad";
+
+				String msg = "Hello,\n1. Choose size of floors , width , length for maze.\n2.Press ''Generate Maze''\n3. Choose axis - z / y / x";
+				displayMessage(msg);
+			}
+		});
+
+		// Listener for generate box
+		btnGenerateMaze.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				String floors = setFloors.getText();
+				String width = setWidth.getText();
+				String length = setLength.getText();
+				String command = "generate_3d_maze " + mazeName + " " + floors + " " + width + " " + length;
+				setChanged();
+				notifyObservers(command);
+
+				setPerspective.setEnabled(true);
+				btnSolveMaze.setEnabled(true);
+				btnGetHints.setEnabled(true);
+
+				shell.redraw();
+				if(!(floors.equals("") && width.equals("") && length.equals(""))) {
+					btnGenerateMaze.setEnabled(false);
+					setPerspective.setText("z");
+				}
+			}
+		});
+
+		// Listener for solve box
+		btnSolveMaze.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				String command = "solve " + mazeName;
+				setChanged();
+				notifyObservers(command);
+
+				btnSolveMaze.setEnabled(false);
+				btnDisplaySolution.setEnabled(true);
+
+			}
+		});
+
+		// Listener for display solution box
+		btnDisplaySolution.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				String command = "display_solution " + mazeName;
+				setChanged();
+				notifyObservers(command);
+				btnDisplaySolution.setEnabled(false);
+				setPerspective.setEnabled(false);
+			}
+		});
+
+		btnGetHints.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				displayMessage("Goal position is: " + maze.getGoalPosition().toString());
+			}
+		});
+
+		mazeDisplay.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				switch(e.keyCode) {
+				case SWT.ARROW_LEFT:
+					mazeDisplay.moveLeft();
+					break;
+				case SWT.ARROW_RIGHT:
+					mazeDisplay.moveRight();
+					break;
+				case SWT.ARROW_UP:
+					mazeDisplay.moveBackward();
+					break;
+				case SWT.ARROW_DOWN:
+					mazeDisplay.moveForward();
+					break;
+				case SWT.PAGE_UP:
+					mazeDisplay.moveUp();
+					break;
+				case SWT.PAGE_DOWN:
+					mazeDisplay.moveDown();
+					break;
+				}
+				if(mazeDisplay.isInGoalPosition()) {
+					displayWinningMsg();
+				}
+				labelDisplayPosition.setText(mazeDisplay.getCurrentPosition().toString());
+			}
+		});
+
+		mazeDisplay.addMouseWheelListener(new MouseWheelListener() {
+
+			@Override
+			public void mouseScrolled(MouseEvent g) {
+				if((g.stateMask & SWT.CONTROL) == SWT.CONTROL) {
+					mazeDisplay.performZoom(g.count);
+				}
+			}
+		});
+	}
+
+
+	@Override
+	public void start() {
+		run();
+	}
+
+
+
+	@Override
+	public void displayDirPath(String[] dirArray) {	}
+
+	@Override
+	public void displayError(String error) {}
+
+	@Override
+	public void displayMessage(String msg) {
+		threadPool.execute(new Runnable() {
+			public void run() {
+				Display display = new Display();
+				Shell shell = new Shell(display);
+
+				int style = SWT.ICON_INFORMATION | SWT.OK | SWT.CANCEL;
+
+				MessageBox msgBox = new MessageBox(shell,style);
+				msgBox.setMessage(msg);
+				msgBox.open();
+				display.dispose();
+			}
+		});
+	}
+
+	public void displayMessageWithMaze(byte[] byteArr , String msg) {
+
+		Maze3d maze;
+		try {
+			maze = new Maze3d(byteArr);
+			int maze3DArray[][][] = maze.getMaze3d();
+			this.maze = maze;
+			String searchMaze = "Maze";
+			String searchIsReady = "is ready";
+			if(msg.indexOf(searchMaze) != -1 && msg.indexOf(searchIsReady) != -1) {
+				mazeDisplay.startGame();
+
+				Display.getDefault().asyncExec(new Runnable() {
+					public void run() {
+						setPerspective.setText("z");
+						mazeDisplay.set3DMaze(maze3DArray);
+						String command = "display_cross_section " + "z" + " " + maze.getStartPosition().getZ() + " " + mazeName;
+						choosenAxis = "z";
+						setChanged();
+						notifyObservers(command);
+					}
+				});
+			}
+
+			String stringLoaded = "loaded from file";
+			if(msg.indexOf(stringLoaded) != -1) {
+				mazeDisplay.startGame();
+
+				Display.getDefault().asyncExec(new Runnable() {
+					public void run() {
+						setPerspective.setText("z");
+						mazeDisplay.set3DMaze(maze3DArray);
+						String command = "display_cross_section " + "z" + " " + maze.getStartPosition().getZ() + " " + mazeName;
+						setChanged();
+						notifyObservers(command);
+						setPerspective.setEnabled(true);
+						btnSolveMaze.setEnabled(true);
+					}
+				});
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	@Override
+	public void displayMaze(byte[] byteArray) throws Exception {}
+
+	@Override
+	public void displayCrossSection(int[][] crossSection) {
+		mazeDisplay.setGoalPosition(maze.getGoalPosition());
+		mazeDisplay.setCurrentPosition(maze.getStartPosition());
+		mazeDisplay.setAxis(setPerspective.getText());
+		mazeDisplay.setMazeData(crossSection);
+		String axis = setPerspective.getText();
+		if(axis.equals("z"))
+			mazeDisplay.setLevel(maze.getStartPosition().getZ());
+		else if(axis.equals("y"))
+			mazeDisplay.setLevel(maze.getStartPosition().getY());
+		else if(axis.equals("x"))
+			mazeDisplay.setLevel(maze.getStartPosition().getX());
+	}
+
+	public void displayWinningMsg() {
+		threadPool.execute(new Runnable() {
+			public void run() {
+				final Display display = new Display();
+				final Shell shell = new Shell();
+				shell.setText("YOU WIN!");
+				shell.setLayout(new FillLayout());
+
+				Canvas canvas = new Canvas(shell, SWT.NONE);
+
+				canvas.addPaintListener(new PaintListener() {
+
+					@Override
+					public void paintControl(PaintEvent e) {
+						Image image = new Image(display , "./resources/winner.jpg");
+						e.gc.drawImage(image, 0, 0);
+						image.dispose();						
+					}
+				});
+
+				shell.setSize(500,500);
+				shell.open();
+				while(!shell.isDisposed() && !closeWindow) {
+					if(!display.readAndDispatch()) {
+						display.sleep();
+					}
+					if(closeWindow) {
+						shell.close();
+						display.dispose();
+					}
+				}
+				display.dispose();
+			}
+		});
+	}
+	@Override
+	public void displaySolution(Solution<String> solution) {
+		mazeDisplay.setSolution(solution);
+		mazeDisplay.start();
+	}
+
+	public void setCurrentPosition (Position pos) {
+		Display.getDefault().asyncExec(new Runnable() {
+			public void run() {
+				labelDisplayPosition.setText(pos.toString());
+			}
+		});
+	}
+
+}

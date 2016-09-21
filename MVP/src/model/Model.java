@@ -68,13 +68,15 @@ public interface Model {
 	 * @param emptyArr - There is nothing in the array.
 	 */
 	
-	public void loadProperties();
-	
 	public void exitCommand();
 	
 	public void saveMazesAndSolutions();
 	
 	public void loadMazesAndSolutions();
+	
+//	public void loadProperties(String[] path);
+	
+	public void saveProperties(String[] arr);
 	
 	public byte[] getMazeFromHashMap(String maze);
 	
@@ -85,8 +87,8 @@ public interface Model {
 	public String[] getList();
 	
 	public String getMessage();
-
-	public void saveProperties(String[] arr);
+	
+	public String getMazeName();
 	
 	public Properties getProperties();
 }

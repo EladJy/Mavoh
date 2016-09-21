@@ -458,4 +458,8 @@ public class Maze3d implements Serializable {
 
 		return true;
 	}
+
+	public int[][][] getMaze3d() {
+		return maze3d;
+	}
 }

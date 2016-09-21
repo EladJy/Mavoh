@@ -26,8 +26,7 @@ public class CommandsManager {
 		commands.put("load_maze" , new loadMaze());
 		commands.put("solve" , new getSolutionReady());
 		commands.put("display_solution" , new getSolution());
-		commands.put("save_properties" , new getSolution());
-		commands.put("load_properties", new loadProperties());
+		commands.put("save_properties" , new saveProperties());
 		commands.put("exit" , new exitCommand());
 		
 		return commands;
@@ -63,13 +62,15 @@ public class CommandsManager {
 	}
 
 	class getCrossSection implements Command {
-
+		String mazeName;
 		@Override
 		public void doCommand(String[] args) {
 			if (args == null) {
 				int[][] crossSection = model.getCrossSection();
-				view.displayCrossSection(crossSection);
+				//byte[] byteArr = model.getMazeFromHashMap(mazeName);
+					view.displayCrossSection(crossSection);
 			} else {
+				mazeName = args[2];
 				model.crossSection(args);			
 			}
 		}
@@ -139,12 +140,11 @@ public class CommandsManager {
 
 	}
 	
-	class loadProperties implements Command {
+	class saveProperties implements Command {
 
 		@Override
 		public void doCommand(String[] args) {
-			Properties p = model.getProperties();
-			view.displayProperties(p);;
+			model.saveProperties(args);
 		}
 		
 	}
@@ -153,7 +153,12 @@ public class CommandsManager {
 
 		@Override
 		public void doCommand(String[] args) {
-			view.displayMessage(model.getMessage());
+			byte[] byteArr = model.getMazeFromHashMap(model.getMazeName());
+			if(model.getProperties().getViewSetup() == "cli")
+				view.displayMessage(model.getMessage());
+			else {
+				view.displayMessageWithMaze(byteArr , model.getMessage());
+			}
 		}
 	}
 

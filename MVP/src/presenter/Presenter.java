@@ -1,6 +1,4 @@
 package presenter;
-
-import java.io.File;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
@@ -19,7 +17,6 @@ public class Presenter implements Observer {
 		this.view = view;
 		commandsManager = new CommandsManager(this.model , this.view);
 		commands = commandsManager.getCommandsMap();
-		intializeIfZipped();
 	}
 
 	@Override
@@ -47,13 +44,4 @@ public class Presenter implements Observer {
 		}
 
 	}
-	
-	public void intializeIfZipped(){
-		File solutions = new File("Solutions.zip");
-		File mazes = new File("Mazes.zip");
-		if(solutions.exists() || mazes.exists()) {
-			model.loadMazesAndSolutions();
-		}
-	}
-
 }

@@ -2,19 +2,19 @@
 <java version="1.8.0_102" class="java.beans.XMLDecoder">
  <object class="presenter.Properties">
   <void property="defaultAlgorithm">
-   <string>growing-last</string>
+   <string>growing-random</string>
   </void>
   <void property="maxMazeSize">
-   <int>10</int>
+   <int>15</int>
   </void>
   <void property="numberOfThreads">
-   <int>10</int>
+   <int>14</int>
   </void>
   <void property="searchAlgorithm">
-   <string>dfs</string>
+   <string>bfs</string>
   </void>
   <void property="viewSetup">
-   <string>cli</string>
+   <string>gui</string>
   </void>
  </object>
 </java>
