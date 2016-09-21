@@ -8,10 +8,10 @@
    <int>15</int>
   </void>
   <void property="numberOfThreads">
-   <int>14</int>
+   <int>10</int>
   </void>
   <void property="searchAlgorithm">
-   <string>bfs</string>
+   <string>dfs</string>
   </void>
   <void property="viewSetup">
    <string>gui</string>
