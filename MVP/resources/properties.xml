@@ -2,10 +2,10 @@
 <java version="1.8.0_102" class="java.beans.XMLDecoder">
  <object class="presenter.Properties">
   <void property="defaultAlgorithm">
-   <string>growing-random</string>
+   <string>growing-last</string>
   </void>
   <void property="maxMazeSize">
-   <int>15</int>
+   <int>20</int>
   </void>
   <void property="numberOfThreads">
    <int>10</int>

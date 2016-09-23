@@ -8,7 +8,6 @@ import model.MyModel;
 import presenter.Presenter;
 import view.MazeWindow;
 import view.MyView;
-import view.Sync;
 
 /**
  * 
@@ -26,8 +25,7 @@ public class Run {
 			view.addObserver(presenter);
 			view.start();
 		} else if(viewSetup.equals("gui")) {
-			Sync sync = new Sync();
-			MazeWindow view = new MazeWindow("Game",850,800 , sync);
+			MazeWindow view = new MazeWindow("Game",850,800);
 			Presenter presenter = new Presenter(model, view);
 			model.addObserver(presenter);
 			view.addObserver(presenter);

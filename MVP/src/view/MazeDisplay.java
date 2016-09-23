@@ -5,11 +5,15 @@ import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 
 import algorithms.mazeGenerators.Position;
 import algorithms.search.Solution;
@@ -22,7 +26,6 @@ public class MazeDisplay extends Canvas {
 	String axis;
 	Timer timer;
 	TimerTask timerTask;
-	Sync sync;
 	int goalLevel;
 	Solution<String> solution;
 	boolean displaySolution;
@@ -33,10 +36,8 @@ public class MazeDisplay extends Canvas {
 	public static final int FREE = 0;
 	public static final int WALL = 1;
 
-	public MazeDisplay(Composite parent , int style , Sync sync) {
+	public MazeDisplay(Composite parent , int style) {
 		super(parent,style);
-		this.sync = sync;
-		this.sync.setMazeDisplay(this);
 		goalLevel = 1;
 		inGame = false;
 		goalPosition = new Position();
@@ -45,7 +46,7 @@ public class MazeDisplay extends Canvas {
 		Image wall=new Image(getDisplay(),"resources/wall.jpg");
 		Image free=new Image(getDisplay(),"resources/floor.jpg");
 		Image goal=new Image(getDisplay(),"resources/goal.png");
-		
+
 		addPaintListener(new PaintListener() {
 
 			@Override
@@ -70,7 +71,7 @@ public class MazeDisplay extends Canvas {
 							}
 						}
 					}
-					
+
 					gameCharacter.paint(e, cellX, cellY);
 					if(axis.equals("z")) {
 						gameCharacter.x = currentPosition.getX() * cellX;
@@ -90,7 +91,7 @@ public class MazeDisplay extends Canvas {
 	public void startGame() {
 		inGame = true;
 	}
-	
+
 	public void stopGame() {
 		inGame = false;
 	}
@@ -107,7 +108,7 @@ public class MazeDisplay extends Canvas {
 
 		int cellX = length / mazeData[0].length;
 		int cellY = width / mazeData.length;
-		
+
 
 		if(axis.equals("z")) {
 			gameCharacter.x = currentPosition.getX() * cellX;
@@ -168,7 +169,7 @@ public class MazeDisplay extends Canvas {
 				}
 			}
 		}
-		
+
 	}
 
 	public void start() {
@@ -201,14 +202,13 @@ public class MazeDisplay extends Canvas {
 								gameCharacter.y = currentPosition.getY() * cellY;
 								setCurrentPosition(currentPosition);
 								setNewFloorData(currentPosition);
-								sync.setCurrentPosition();
 								redraw();
 							}
 						} else {
 							stopDisplaySolution();
-							sync.enablePerspective();
 							if(isInGoalPosition()) {
-								sync.mazeWindow.displayWinningMsg();
+								displayWinningMsg();
+								stopGame();
 							}
 						}
 
@@ -217,6 +217,40 @@ public class MazeDisplay extends Canvas {
 			}
 		};
 		timer.scheduleAtFixedRate(timerTask, 0, 300);
+
+	}
+
+	public void displayWinningMsg() {
+		Thread thread = new Thread(new Runnable() {
+			public void run() {
+				final Display display = new Display();
+				final Shell shell = new Shell();
+				shell.setText("YOU WIN!");
+				shell.setLayout(new FillLayout());
+
+				Canvas canvas = new Canvas(shell, SWT.NONE);
+
+				canvas.addPaintListener(new PaintListener() {
+
+					@Override
+					public void paintControl(PaintEvent e) {
+						Image image = new Image(display , "./resources/winner.jpg");
+						e.gc.drawImage(image, 0, 0);
+						image.dispose();						
+					}
+				});
+
+				shell.setSize(500,500);
+				shell.open();
+				while(!shell.isDisposed()) {
+					if(!display.readAndDispatch()) {
+						display.sleep();
+					}
+				}
+				display.dispose();
+			}
+		});
+		thread.start();
 	}
 
 	public void stopDisplaySolution() {
@@ -401,12 +435,12 @@ public class MazeDisplay extends Canvas {
 		}
 		redraw();
 	}
-	
+
 	public void performZoom(int scroll) {
 		int length = getSize().x;
 		int width = getSize().y;
-		
-		
+
+
 		if(scroll < 0)
 			setSize((int)(length*0.99), (int)(width*0.99));
 		else
@@ -431,7 +465,7 @@ public class MazeDisplay extends Canvas {
 	public void setGoalPosition(Position pos) {
 		this.goalPosition = pos;
 	}
-	
+
 	public boolean isInGoalPosition() {
 		if(currentPosition.equals(goalPosition)) {
 			return true;
@@ -451,7 +485,7 @@ public class MazeDisplay extends Canvas {
 			if(level == goalPosition.getX() && i == goalPosition.getZ() && j == goalPosition.getY())
 				return true;
 		}
-		
+
 		return false;
 	}
 }

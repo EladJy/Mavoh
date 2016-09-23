@@ -38,6 +38,7 @@ import io.MyDecompressorInputStream;
 import presenter.Properties;
 import presenter.PropertiesLoader;
 
+
 public class MyModel extends Observable implements Model {
 
 	private ExecutorService threadPool;
@@ -49,12 +50,28 @@ public class MyModel extends Observable implements Model {
 	private String mazeName;
 	private Properties properties;
 
+	
+	public HashMap<String, Maze3dGenerator> getMaze3dGenerator() {
+		HashMap<String, Maze3dGenerator> commands = new HashMap<String , Maze3dGenerator>();
+		commands.put("simple", new SimpleMaze3dGenerator());
+		commands.put("growing-random" , new GrowingTreeGenerator(new GrowingTreeRandomCell()));
+		commands.put("growing-last" , new GrowingTreeGenerator(new GrowingTreeLastCell()));
+		return commands;
+	}
+	
+	public HashMap<String, Searcher<String>> getSearcher() {
+		HashMap<String, Searcher<String>> commands = new HashMap<String , Searcher<String>>();
+		commands.put("dfs", new DFS<String>());
+		commands.put("bfs" , new BFS<String>());
+		return commands;
+	}
+	
 	public MyModel(String[] path) {
+		mazes = new HashMap<String, Maze3d>();
+		mazeSolutions = new HashMap<String, Solution<String>>();
 		intializeIfZipped();
 		properties = PropertiesLoader.getInstance().getProperties();
 		threadPool = Executors.newFixedThreadPool(properties.getNumberOfThreads());
-		mazes = new HashMap<String, Maze3d>();
-		mazeSolutions = new HashMap<String, Solution<String>>();
 	}
 	@Override
 	public void dirPath(String[] dirArray) {
@@ -108,21 +125,16 @@ public class MyModel extends Observable implements Model {
 		threadPool.submit(new Callable<Maze3d>() {
 			@Override
 			public Maze3d call() throws Exception {
-				Maze3dGenerator mg = null;
-				if(algorithm.equals("simple")) {
-					mg = new SimpleMaze3dGenerator();
-				} else if (algorithm.equals("growing-random")) {
-					mg = new GrowingTreeGenerator(new GrowingTreeRandomCell());
-				} else if (algorithm.equals("growing-last")) {
-					mg = new GrowingTreeGenerator(new GrowingTreeLastCell());
-				} else {
+				HashMap<String, Maze3dGenerator> algorithms = getMaze3dGenerator();
+				Maze3dGenerator mg = algorithms.get(algorithm);
+				if(mg == null) {
 					setChanged();
 					message = "Invalid algorithm name";
 					notifyObservers("error");
 					return null;
 				}
 				if(mazes.containsKey(mazeName)) {
-					System.out.println("You override maze: " + mazeName + " with new parameters.");
+					message = "You override maze: " + mazeName + " with new parameters.";
 					mazes.remove(mazeName);
 				}
 
@@ -350,19 +362,11 @@ public class MyModel extends Observable implements Model {
 
 			@Override
 			public Solution<String> call() throws Exception {
+				HashMap<String, Searcher<String>> searchers = getSearcher();
 				Searchable<String> mazeSearch = new Maze3dSearchable(maze);
-				Searcher<String> searchAlgorithm;
+				Searcher<String> searchAlgorithm = searchers.get(algorithm);
 
-				switch(algorithm) {
-				case "bfs":
-				case "BFS":
-					searchAlgorithm = new BFS<String>();
-					break;
-				case "dfs":
-				case "DFS":
-					searchAlgorithm = new DFS<String>();
-					break;
-				default:
+				if(searchAlgorithm == null) {
 					setChanged();
 					message = "Invalid algorithm";
 					notifyObservers("error");
@@ -528,7 +532,7 @@ public class MyModel extends Observable implements Model {
 	
 	@Override
 	public void saveProperties(String[] arr) {
-		if (arr == null || arr.length != 5) {
+		if (arr.length != 5) {
 			setChanged();
 			message = "Invalid number of parameters";
 			notifyObservers("error");
@@ -551,8 +555,10 @@ public class MyModel extends Observable implements Model {
 			properties.setSearchAlgorithm(searchAlgorithm);
 			properties.setMaxMazeSize(maxSize);
 			properties.setViewSetup(view);
+			message = "You must restart the program before\nthe new setting will take effect.";
 			setChanged();
-			notifyObservers("save_properties");
+			notifyObservers("displayMessage");
+			
 		} 
 		catch (FileNotFoundException e) 
 		{

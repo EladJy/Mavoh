@@ -28,7 +28,7 @@ public class CommandsManager {
 		commands.put("display_solution" , new getSolution());
 		commands.put("save_properties" , new saveProperties());
 		commands.put("exit" , new exitCommand());
-		
+
 		return commands;
 	}
 
@@ -68,7 +68,7 @@ public class CommandsManager {
 			if (args == null) {
 				int[][] crossSection = model.getCrossSection();
 				//byte[] byteArr = model.getMazeFromHashMap(mazeName);
-					view.displayCrossSection(crossSection);
+				view.displayCrossSection(crossSection);
 			} else {
 				mazeName = args[2];
 				model.crossSection(args);			
@@ -139,26 +139,27 @@ public class CommandsManager {
 		}
 
 	}
-	
+
 	class saveProperties implements Command {
 
 		@Override
 		public void doCommand(String[] args) {
 			model.saveProperties(args);
 		}
-		
+
 	}
 
 	class displayMessage implements Command {
 
 		@Override
 		public void doCommand(String[] args) {
-			byte[] byteArr = model.getMazeFromHashMap(model.getMazeName());
-			if(model.getProperties().getViewSetup() == "cli")
-				view.displayMessage(model.getMessage());
-			else {
+			byte[] byteArr = null;
+			if(model.getMazeName() != null && model.getProperties().getViewSetup().equals("gui")) {
+				byteArr = model.getMazeFromHashMap(model.getMazeName());
 				view.displayMessageWithMaze(byteArr , model.getMessage());
+				return;
 			}
+			view.displayMessage(model.getMessage());		
 		}
 	}
 
@@ -169,6 +170,6 @@ public class CommandsManager {
 			view.displayError(model.getMessage());
 		}
 	}
-	
+
 
 }
