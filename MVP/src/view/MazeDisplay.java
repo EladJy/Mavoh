@@ -19,6 +19,12 @@ import algorithms.mazeGenerators.Position;
 import algorithms.search.Solution;
 import algorithms.search.State;
 
+/**
+ * Maze display class , to display the game board
+ * @author Elad Jarby
+ * @version 1.0
+ * @since 19.09.2016
+ */
 public class MazeDisplay extends Canvas {
 	int[][]mazeData;
 	int[][][]maze3DArray;
@@ -36,6 +42,11 @@ public class MazeDisplay extends Canvas {
 	public static final int FREE = 0;
 	public static final int WALL = 1;
 
+	/**
+	 * Constructor to initialize all the parameters
+	 * @param parent - Parent shell 
+	 * @param style - SWT Style
+	 */
 	public MazeDisplay(Composite parent , int style) {
 		super(parent,style);
 		goalLevel = 1;
@@ -47,6 +58,9 @@ public class MazeDisplay extends Canvas {
 		Image free=new Image(getDisplay(),"resources/floor.jpg");
 		Image goal=new Image(getDisplay(),"resources/goal.png");
 
+		/**
+		 * Paint listener - if the window is changing
+		 */
 		addPaintListener(new PaintListener() {
 
 			@Override
@@ -88,18 +102,32 @@ public class MazeDisplay extends Canvas {
 		});
 	}
 
+	/**
+	 * Setter for start the game
+	 */
 	public void startGame() {
 		inGame = true;
 	}
 
+	/**
+	 * Setter for stop the game
+	 */
 	public void stopGame() {
 		inGame = false;
 	}
 
+	/**
+	 * Function that check if in game or not
+	 * @return True - if in game , otherwise false
+	 */
 	public boolean isInGame() {
 		return inGame;
 	}
 
+	/**
+	 * Set 2D maze data
+	 * @param mazeData - 2D Maze
+	 */
 	public void setMazeData(int[][]mazeData) {
 		this.mazeData = mazeData;
 
@@ -124,15 +152,26 @@ public class MazeDisplay extends Canvas {
 		redraw();
 	}
 
+	/**
+	 * Set 3D Maze
+	 * @param maze3DArray - 3D Maze
+	 */
 	public void set3DMaze(int[][][]maze3DArray) {
 		this.maze3DArray = maze3DArray;
 	}
 
+	/**
+	 * Set the solution to this solution
+	 * @param solution - Solution to set
+	 */
 	public void setSolution(Solution<String> solution) {
 		this.solution = solution;
 	}
 
-
+	/**
+	 * Set new floor data
+	 * @param pos - Set the data of the level according to position
+	 */
 	public void setNewFloorData(Position pos) {
 		if(axis.equals("z")) {
 			int z = pos.getZ();
@@ -172,6 +211,9 @@ public class MazeDisplay extends Canvas {
 
 	}
 
+	/**
+	 * Start display the solution of the maze
+	 */
 	public void start() {
 		displaySolution = true;
 		ArrayList<State<String>> solutionPath = solution.getStates();
@@ -220,6 +262,9 @@ public class MazeDisplay extends Canvas {
 
 	}
 
+	/**
+	 * Display winning message
+	 */
 	public void displayWinningMsg() {
 		Thread thread = new Thread(new Runnable() {
 			public void run() {
@@ -253,6 +298,9 @@ public class MazeDisplay extends Canvas {
 		thread.start();
 	}
 
+	/**
+	 * Stop to display solution
+	 */
 	public void stopDisplaySolution() {
 		if (displaySolution) {
 			displaySolution = false;
@@ -260,6 +308,10 @@ public class MazeDisplay extends Canvas {
 			timerTask.cancel();
 		}
 	}
+
+	/**
+	 * Move character left in the maze according to axis - x / y / z
+	 */
 	public void moveLeft() {
 		int length= getSize().x;
 		int cellX = length/mazeData[0].length;
@@ -290,6 +342,9 @@ public class MazeDisplay extends Canvas {
 		}
 	}
 
+	/**
+	 * Move character right in the maze according to axis - x / y / z
+	 */
 	public void moveRight() {
 		int length= getSize().x;
 		int cellX = length/mazeData[0].length;
@@ -320,6 +375,9 @@ public class MazeDisplay extends Canvas {
 		}
 	}
 
+	/**
+	 * Move character backward in the maze according to axis - x / y / z
+	 */
 	public void moveBackward() {
 		int width = getSize().y;
 		int cellY = width / mazeData.length;
@@ -349,6 +407,9 @@ public class MazeDisplay extends Canvas {
 		redraw();
 	}
 
+	/**
+	 * Move character forward in the maze according to axis - x / y / z
+	 */
 	public void moveForward() {
 		int width = getSize().y;
 		int cellY = width / mazeData.length;
@@ -378,6 +439,9 @@ public class MazeDisplay extends Canvas {
 		redraw();
 	}
 
+	/**
+	 * Move character up in the maze according to axis - x / y / z
+	 */
 	public void moveUp() {
 		if(axis.equals("z")) {
 			if(currentPosition.getZ() < maze3DArray.length - 1) {
@@ -407,6 +471,9 @@ public class MazeDisplay extends Canvas {
 		redraw();
 	}
 
+	/**
+	 * Move character down in the maze according to axis - z / y / x
+	 */
 	public void moveDown() {
 		if(axis.equals("z")) {
 			if(currentPosition.getZ() > 0) {
@@ -436,6 +503,10 @@ public class MazeDisplay extends Canvas {
 		redraw();
 	}
 
+	/**
+	 * Function to perform zoom in or zoom out with ctrl + mouse wheel
+	 * @param scroll - Positive for zoom in , Negative for zoom out
+	 */
 	public void performZoom(int scroll) {
 		int length = getSize().x;
 		int width = getSize().y;
@@ -447,25 +518,50 @@ public class MazeDisplay extends Canvas {
 			setSize((int)(length*1.01), (int)(width*1.01));
 	}
 
-
+	/**
+	 * Setter for axis - z / y /x 
+	 * @param axis - String that represents axis z / y / x
+	 */
 	public void setAxis(String axis) {
 		this.axis = axis;
 	}
 
+	/**
+	 * Setter for current position
+	 * @param position - Position
+	 */
 	public void setCurrentPosition(Position position) {
 		this.currentPosition = position;
 	}
 
+	/**
+	 * Getter to get the current position
+	 * @return Current position
+	 */
 	public Position getCurrentPosition () {
 		return currentPosition;
 	}
+	
+	/**
+	 * Setter to set the goal level
+	 * @param level - Goal level
+	 */
 	public void setLevel(int level) {
 		this.goalLevel = level;
 	}
+	
+	/**
+	 * Setter to set the goal position of the maze
+	 * @param pos - Goal position of the maze
+	 */
 	public void setGoalPosition(Position pos) {
 		this.goalPosition = pos;
 	}
 
+	/**
+	 * Function to check between current position to goal position
+	 * @return True if is in goal position , otherwise return false
+	 */
 	public boolean isInGoalPosition() {
 		if(currentPosition.equals(goalPosition)) {
 			return true;
@@ -474,6 +570,14 @@ public class MazeDisplay extends Canvas {
 		}
 	}
 
+	/**
+	 * Function to check where to set the goal position image for axis: z / y / x
+	 * @param axis - Axis z / y / x
+	 * @param level - Goal position level
+	 * @param i - Length cell in the maze of the goal position image need to be set
+	 * @param j - Length cell in the maze the goal position image need to be set
+	 * @return - True if found goal position need to be set , otherwise return false
+	 */
 	private boolean checkIsGoal(String axis, int level, int i, int j) {
 		if(axis.equals("z")) {
 			if(level == goalPosition.getZ() && i == goalPosition.getY() && j == goalPosition.getX())

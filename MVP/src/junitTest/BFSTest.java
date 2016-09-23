@@ -6,13 +6,25 @@ import org.junit.Test;
 
 import algorithms.search.BFS;
 
+/**
+ * Junit test for BFS
+ * @author Elad Jarby
+ * @version 1.0
+ * @since 18.09.2016
+ */
 public class BFSTest {
 	BFS<String> bfs;
 	
+	/**
+	 * Constructor to initialize bfs
+	 */
 	public BFSTest() {
 		bfs = new BFS<String>();
 	}
 	
+	/**
+	 * Test for null
+	 */
 	@Test
 	public void testNull() {
 		try {

@@ -73,6 +73,11 @@ public class MyModel extends Observable implements Model {
 		properties = PropertiesLoader.getInstance().getProperties();
 		threadPool = Executors.newFixedThreadPool(properties.getNumberOfThreads());
 	}
+	
+	/**
+	 * Handling with command: dir < path ></br>
+	 * @param dirArray - Array of string , containing string with path.
+	 */
 	@Override
 	public void dirPath(String[] dirArray) {
 		if(dirArray == null || dirArray.length != 1) {
@@ -102,6 +107,12 @@ public class MyModel extends Observable implements Model {
 		notifyObservers("dir");		
 	}
 
+	/**
+	 * Handling with command:</br> 
+	 * generate_3d_maze < maze name > < floors > < width > < length > < algorithm ></br>
+	 * <b>Algorithms:</b> simple , growing-last , growing-random.
+	 * @param arr - Array of string with the parameters.
+	 */
 	@Override
 	public void generate3dMaze(String[] arr) {
 		if(arr == null || arr.length != 4) {
@@ -111,6 +122,7 @@ public class MyModel extends Observable implements Model {
 			return;
 		}
 		mazeName = arr[0];
+		int maxMaze = properties.getMaxMazeSize();
 		int x = Integer.parseInt(arr[1]);
 		int y = Integer.parseInt(arr[2]);
 		int z = Integer.parseInt(arr[3]);
@@ -118,6 +130,13 @@ public class MyModel extends Observable implements Model {
 		if( x < 1 || y < 1 || z < 1 ) {
 			setChanged();
 			message = "Error on (z,y,x) , Must be positive numbers";
+			notifyObservers("error");
+			return;
+		}
+		
+		if( x > maxMaze || y > maxMaze || z > maxMaze) {
+			setChanged();
+			message = "Error , you can't generate maze that one of the axis greater than: " + maxMaze;
 			notifyObservers("error");
 			return;
 		}
@@ -147,7 +166,11 @@ public class MyModel extends Observable implements Model {
 		});
 
 	}
-
+	
+	/**
+	 * Handling with command: display < maze name >
+	 * @param arr - Array of one string , containing the maze name that need to display.
+	 */
 	@Override
 	public void getMaze(String[] arr) {
 		if (arr == null || arr.length != 1) {
@@ -172,7 +195,13 @@ public class MyModel extends Observable implements Model {
 		}
 
 	}
-
+	
+	/**
+	 * Handling with command: display_cross_section < axis > < index > < maze name ></br>
+	 * <b>axis:</b> z - for floors , y - for width , x - for length.</br>
+	 * <b>index:</b> can chose from 0 to axis-1 , otherwise return error.
+	 * @param arr - Array of string with the parameters.
+	 */
 	@Override
 	public void crossSection(String[] arr) {
 		if (arr == null || arr.length != 3) {
@@ -243,6 +272,12 @@ public class MyModel extends Observable implements Model {
 
 	}
 
+	/**
+	 * Handling with command: save_maze < maze name > < file name ></br>
+	 * <b>maze name:</b> The maze name that need to be save on the file.</br>
+	 * <b>file name:</b> The file name that we need to save maze in.
+	 * @param arr - Array of string with the parameters.
+	 */
 	@Override
 	public void saveMaze(String[] arr) {
 		if (arr == null || arr.length != 2) {
@@ -287,6 +322,12 @@ public class MyModel extends Observable implements Model {
 
 	}
 
+	/**
+	 * Handling with command: load_maze < file name > < maze name ></br>
+	 * <b>file name:</b> The file name we need to load the maze from.</br>
+	 * <b>maze name:</b> The maze name we want to save from the loaded file.
+	 * @param arr - Array of string with the parameters.
+	 */
 	@Override
 	public void loadMaze(String[] arr) {
 		if (arr == null || arr.length != 2) {
@@ -340,6 +381,12 @@ public class MyModel extends Observable implements Model {
 
 	}
 
+	/**
+	 * Handling with command: solve < maze name > < algorithm ></br>
+	 * Solves the specific maze with algorithm.</b></br>
+	 * <b>alogirthm:</b> dfs or bfs.
+	 * @param arr - Array of string with the parameters.
+	 */
 	@Override
 	public void getSolutionReady(String[] arr) {
 		if (arr == null || arr.length != 1) {
@@ -384,6 +431,11 @@ public class MyModel extends Observable implements Model {
 
 	}
 
+	/**
+	 * Handling with command: display_solution < maze name ></br>
+	 * Display existing solution.
+	 * @param arr - Array of one string , containing the maze name that need to display his solution.
+	 */
 	@Override
 	public void getSolution(String[] arr) {
 		if (arr == null || arr.length != 1) {
@@ -412,6 +464,10 @@ public class MyModel extends Observable implements Model {
 		}
 	}		
 
+	/**
+	 * Closing all running threads.
+	 * @param emptyArr - There is nothing in the array.
+	 */
 	@Override
 	public void exitCommand() {
 		saveMazesAndSolutions();
@@ -429,6 +485,9 @@ public class MyModel extends Observable implements Model {
 
 	}
 
+	/**
+	 * Save mazes and solutions into specific files
+	 */
 	@Override
 	public void saveMazesAndSolutions() {
 		try {
@@ -457,6 +516,10 @@ public class MyModel extends Observable implements Model {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * Load mazes and solution from specific files
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void loadMazesAndSolutions() {
@@ -487,49 +550,10 @@ public class MyModel extends Observable implements Model {
 
 	}
 
-//	@Override
-//	public void loadProperties(String[] path) {
-//		StringBuilder sb = new StringBuilder();
-//		if(path == null) {
-//			sb.append("./resources/properties.xml");
-//		}
-//		if(path.length == 0) {
-//			sb.append("./resources/properties.xml");
-//		}
-//		else if(path[0] == "null") {
-//			sb.append("./resources/properties.xml");
-//		}
-//		else {
-//			for (int i = 0; i < path.length; i++) {
-//				if(i == path.length - 1) {
-//					sb.append(path[i]);
-//				} else {
-//					sb.append(path[i] + " ");
-//				}
-//			}
-//		}
-//
-//		try {
-//			File file = new File(sb.toString());
-//			if(!file.exists() || file.isDirectory()) {
-//				XMLEncoder xmle;
-//				xmle = new XMLEncoder(new FileOutputStream(sb.toString()));
-//				xmle.writeObject(new Properties(10,"growing-random", "dfs" , 10,"gui"));
-//				xmle.close();
-//			}
-//			
-//			XMLDecoder xmld = new XMLDecoder(new FileInputStream(sb.toString()));
-//			properties = (Properties)xmld.readObject();
-//			xmld.close();
-//			
-//			setChanged();
-//			notifyObservers("load_properties");
-//		} catch (FileNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//	}
-	
+	/**
+	 * Save properties to file
+	 * @param arr  - array of string with the parameters
+	 */
 	@Override
 	public void saveProperties(String[] arr) {
 		if (arr.length != 5) {
@@ -538,13 +562,47 @@ public class MyModel extends Observable implements Model {
 			notifyObservers("error");
 			return;
 		}
-		
 		int numberOfThreads = Integer.parseInt(arr[0]);
 		String algorithm = arr[1];
 		String searchAlgorithm = arr[2];
 		int maxSize = Integer.parseInt(arr[3]);
 		String view = arr[4];
+		HashMap<String, Maze3dGenerator> algorithms = getMaze3dGenerator();
+		HashMap<String, Searcher<String>> searchers = getSearcher();
+		if( numberOfThreads < 5) {
+			setChanged();
+			message = "Minimum number of threads need to be 5";
+			notifyObservers("error");
+			return;
+		}
 		
+		if(!algorithms.containsKey(algorithm)) {
+			message = "Invalid algorithm";
+			setChanged();
+			notifyObservers("error");
+			return;
+		}
+		
+		if(!searchers.containsKey(searchAlgorithm)) {
+			setChanged();
+			message = "Invalid search algoirthm";
+			notifyObservers("error");
+			return;
+		}
+		
+		if( maxSize > 60 ) {
+			setChanged();
+			message = "Maximum of max maze can be 60";
+			notifyObservers("error");
+			return;
+		}
+		
+		if(!(view.equals("cli") || view.equals("gui"))) {
+			setChanged();
+			message = "View most to be cli or gui only";
+			notifyObservers("error");
+			return;
+		}
 		try 
 		{
 			XMLEncoder xmlE = new XMLEncoder(new FileOutputStream("./resources/properties.xml"));
@@ -567,35 +625,71 @@ public class MyModel extends Observable implements Model {
 		
 		
 	}
+	
+	/**
+	 * Getter to get byte of array from hash map by maze name
+	 * @param maze - Maze name
+	 * @return Array of byte of maze
+	 */
 	@Override
 	public byte[] getMazeFromHashMap(String maze) {
 		return mazes.get(maze).toByteArray();
 	}
 	
+	/**
+	 * Getter to get maze name
+	 * @return Maze name
+	 */
 	public String getMazeName() {
 		return mazeName;
 	}
 
+	/**
+	 * Getter to get cross section
+	 * @return Cross section of the specific request
+	 */
 	public int[][] getCrossSection() {
 		return crossSection;
 	}
 
+	/**
+	 * Getter to get solution from hash map by maze name
+	 * @param maze - Maze name
+	 * @return Solution of the specific maze
+	 */
 	public Solution<String> getSolutionFromHashMap(String maze) {
 		return mazeSolutions.get(maze);
 	}
 
+	/**
+	 * Get list of files / directories from directory
+	 * @return List of files / directories
+	 */
 	public String[] getList() {
 		return fileList;
 	}
+	
+	/**
+	 * Get message
+	 * @return Message
+	 */
 	@Override
 	public String getMessage() {
 		return message;
 	}
 
+	/**
+	 * Getter to get properties
+	 * @return Properties
+	 */
 	public Properties getProperties() {
 		return properties;
 	}
 	
+	/**
+	 * Check if there is files called: "Solutions" and "Mazes"</br>
+	 * in the directory
+	 */
 	public void intializeIfZipped(){
 		File solutions = new File("Solutions.zip");
 		File mazes = new File("Mazes.zip");

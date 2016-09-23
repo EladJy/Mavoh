@@ -67,28 +67,65 @@ public interface Model {
 	 * Closing all running threads.
 	 * @param emptyArr - There is nothing in the array.
 	 */
-	
 	public void exitCommand();
 	
+	/**
+	 * Save mazes and solutions into specific files
+	 */
 	public void saveMazesAndSolutions();
 	
+	/**
+	 * Load mazes and solution from specific files
+	 */
 	public void loadMazesAndSolutions();
 	
-//	public void loadProperties(String[] path);
-	
+	/**
+	 * Save properties to file
+	 * @param arr  - array of string with the parameters
+	 */
 	public void saveProperties(String[] arr);
 	
+	/**
+	 * Getter to get byte of array from hash map by maze name
+	 * @param maze - Maze name
+	 * @return Array of byte of maze
+	 */
 	public byte[] getMazeFromHashMap(String maze);
 	
+	/**
+	 * Getter to get solution from hash map by maze name
+	 * @param maze - Maze name
+	 * @return Solution of the specific maze
+	 */
 	public Solution<String> getSolutionFromHashMap(String maze);
 	
+	/**
+	 * Getter to get cross section
+	 * @return Cross section of the specific request
+	 */
 	public int[][] getCrossSection();
 	
+	/**
+	 * Get list of files / directories from directory
+	 * @return List of files / directories
+	 */
 	public String[] getList();
 	
+	/**
+	 * Get message
+	 * @return Message
+	 */
 	public String getMessage();
 	
+	/**
+	 * Getter to get maze name
+	 * @return Maze name
+	 */
 	public String getMazeName();
 	
+	/**
+	 * Getter to get properties
+	 * @return Properties
+	 */
 	public Properties getProperties();
 }

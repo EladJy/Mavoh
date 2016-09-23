@@ -1,6 +1,13 @@
 package view;
 
 import algorithms.search.Solution;
+
+/**
+ * View interface which display all the generated information for specific command.
+ * @author Elad Jarby
+ * @version 1.0
+ * @since 13.09.2016
+ */
 public interface View {
 	/**
 	 * Starting the user interface.
@@ -19,9 +26,17 @@ public interface View {
 	 */
 	public void displayError (String error);
 	
-
+	/**
+	 * Displays a message.
+	 * @param msg - Message.
+	 */
 	public void displayMessage(String msg);
 	
+	/**
+	 * Displays a message with maze with array of bytes.
+	 * @param arr - Maze with array of bytes
+	 * @param msg - Message
+	 */
 	public void displayMessageWithMaze(byte[] arr , String msg);
 	
 	/**
@@ -42,6 +57,4 @@ public interface View {
 	 * @param solution - Solution of the maze.
 	 */
 	public void displaySolution(Solution<String> solution);
-	
-//	public void displayProperties(Properties p);
 }

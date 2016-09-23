@@ -6,6 +6,12 @@ import java.io.FileOutputStream;
 
 import presenter.Properties;
 
+/**
+ * Run for properties
+ * @author Elad Jarby
+ * @version 1.0
+ * @since 18.09.2016
+ */
 public class RunProperties {
 
 	public static void main(String[] args) 

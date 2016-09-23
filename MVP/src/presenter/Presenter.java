@@ -6,12 +6,23 @@ import java.util.Observer;
 import model.Model;
 import view.View;
 
+/**
+ * Define the functionality of the presenter class
+ * @author Elad Jarby
+ * @version 1.0
+ * @since 13.09.2016
+ */
 public class Presenter implements Observer {
 	private Model model;
 	private View view;
 	private HashMap<String, Command> commands;
 	private CommandsManager commandsManager;
 
+	/**
+	 * Constructor to initialize presenter
+	 * @param model - Model of the presenter
+	 * @param view - View of the presenter
+	 */
 	public Presenter(Model model , View view) {
 		this.model = model;
 		this.view = view;
@@ -19,6 +30,10 @@ public class Presenter implements Observer {
 		commands = commandsManager.getCommandsMap();
 	}
 
+	/**
+	 * Override function , when the observable had changed,</br>
+	 * It calls to update function to update the observer (the presenter).
+	 */
 	@Override
 	public void update(Observable o, Object arg) {
 		if(o == view) {

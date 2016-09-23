@@ -41,6 +41,12 @@ import algorithms.search.Solution;
 import presenter.Properties;
 import presenter.PropertiesLoader;
 
+/**
+ * Generating the main window
+ * @author Elad Jarby
+ * @version 1.0
+ * @since 18.09.2016
+ */
 public class MazeWindow extends BasicWindow implements View {
 	boolean closeWindow;
 	Combo setPerspective;
@@ -76,6 +82,13 @@ public class MazeWindow extends BasicWindow implements View {
 	Menu menuBar , fileMenu;
 	MenuItem fileMenuHeader;
 	MenuItem filePropertiesItem , fileSaveMazeItem , fileLoadMazeItem , fileExitItem;
+	
+	/**
+	 * Constructor to initialize all the parameters
+	 * @param title - Title of the window
+	 * @param width - Width of the window
+	 * @param height - Height of the window
+	 */
 	public MazeWindow(String title, int width, int height) {
 		super(title, width, height);
 		closeWindow = false;
@@ -86,6 +99,9 @@ public class MazeWindow extends BasicWindow implements View {
 		setProperties();		
 	}
 
+	/**
+	 * Set all the properties from the properties.xml file
+	 */
 	public void setProperties() {
 		String size;
 		maxSize = properties.getMaxMazeSize();
@@ -100,6 +116,10 @@ public class MazeWindow extends BasicWindow implements View {
 			lengths[i] = size;
 		}
 	}
+	
+	/**
+	 * Initialize all the widgets of the window
+	 */
 	@Override
 	void initWidgets() {
 
@@ -272,22 +292,28 @@ public class MazeWindow extends BasicWindow implements View {
 			}
 		});
 
+		// Create menu bar
 		menuBar = new Menu(shell,SWT.BAR);
 		fileMenuHeader = new MenuItem(menuBar, SWT.CASCADE);
 		fileMenuHeader.setText("File");
 
+		// Create file menu
 		fileMenu = new Menu(shell,SWT.DROP_DOWN);
 		fileMenuHeader.setMenu(fileMenu);
 
+		// Create properties item
 		filePropertiesItem = new MenuItem(fileMenu, SWT.PUSH);
 		filePropertiesItem.setText("Properties");
 
+		// Create save maze item
 		fileSaveMazeItem = new MenuItem(fileMenu, SWT.PUSH);
 		fileSaveMazeItem.setText("Save maze");
 
+		// Create load maze item
 		fileLoadMazeItem = new MenuItem(fileMenu, SWT.PUSH);
 		fileLoadMazeItem.setText("Load maze");
 
+		// Create exit item
 		fileExitItem = new MenuItem(fileMenu, SWT.PUSH);
 		fileExitItem.setText("Exit");
 
@@ -311,7 +337,7 @@ public class MazeWindow extends BasicWindow implements View {
 						e.doit = true;
 						closeWindow = true;
 					} else {
-						displayMessage("You need to close all windows!");
+						displayError("You need to close all windows!");
 						e.doit = false;
 					}
 				} else {
@@ -474,7 +500,7 @@ public class MazeWindow extends BasicWindow implements View {
 					setChanged();
 					notifyObservers(command);
 				}else if(selected != null){
-					displayMessage("You need to genenrate maze!");
+					displayError("You need to genenrate maze!");
 				}
 				//				Thread thread = new Thread(new Runnable() {
 				//					@Override
@@ -744,7 +770,7 @@ public class MazeWindow extends BasicWindow implements View {
 					btnSolveMaze.setEnabled(false);
 					btnDisplaySolution.setEnabled(true);
 				} else {
-					displayMessage("You need to generate maze!");
+					displayError("You need to generate maze!");
 				}
 			}
 		});
@@ -760,14 +786,15 @@ public class MazeWindow extends BasicWindow implements View {
 						btnDisplaySolution.setEnabled(false);
 						setPerspective.setEnabled(false);
 					} else {
-						displayMessage("You need to choose perspective first!");
+						displayError("You need to choose perspective first!");
 					}
 				} else {
-					displayMessage("You need to generate maze!");
+					displayError("You need to generate maze!");
 				}
 			}
 		});
 
+		// Listener for display hints box
 		btnGetHints.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				Random r = new Random();
@@ -783,11 +810,12 @@ public class MazeWindow extends BasicWindow implements View {
 					}
 				}
 				else {
-					displayMessage("You need to generate maze!");
+					displayError("You need to generate maze!");
 				}
 			}
 		});
 
+		// Listener for maze display , to move the character in the maze
 		mazeDisplay.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				if(mazeDisplay.isInGame()) {
@@ -817,11 +845,12 @@ public class MazeWindow extends BasicWindow implements View {
 					}
 					labelDisplayPosition.setText(mazeDisplay.getCurrentPosition().toString());
 				} else {
-					displayMessage("Please generate a maze to play!");
+					displayError("Please generate a maze to play!");
 				}
 			}
 		});
 
+		// Listener for maze display for zoom in or zoom out with ctrl + mouse wheel
 		mazeDisplay.addMouseWheelListener(new MouseWheelListener() {
 
 			@Override
@@ -833,26 +862,60 @@ public class MazeWindow extends BasicWindow implements View {
 		});
 	}
 
-
+	/**
+	 * Interrupt all the threads
+	 */
 	public void interruptThreads() {
 		for (int i = 0; i < threads.size(); i++) {
 			threads.get(i).interrupt();
 		}
 	}
 
+	/**
+	 * Starting the GUI
+	 */
 	@Override
 	public void start() {
 		run();
 	}
 
 
-
+	/**
+	 * Display a list of files/directories for specific path.
+	 * @param dirArray - Array of string , containing  files/directories.
+	 */
 	@Override
 	public void displayDirPath(String[] dirArray) {	}
 
+	/**
+	 * Displays an error message.
+	 * @param error - Error message.
+	 */
 	@Override
-	public void displayError(String error) {}
+	public void displayError(String error) {
+		Thread thread = new Thread(new Runnable() {
+			public void run() {
+				canCloseGame = false;
+				Display display = new Display();
+				Shell shell = new Shell(display);
 
+				int style = SWT.ICON_ERROR | SWT.OK | SWT.CANCEL;
+
+				MessageBox msgBox = new MessageBox(shell,style);
+				msgBox.setMessage(error);
+				msgBox.open();
+				display.dispose();
+				canCloseGame = true;
+			}
+		});
+		thread.start();
+		threads.add(thread);		
+	}
+
+	/**
+	 * Displays a message.
+	 * @param msg - Message.
+	 */
 	@Override
 	public void displayMessage(String msg) {
 		Thread thread = new Thread(new Runnable() {
@@ -874,6 +937,11 @@ public class MazeWindow extends BasicWindow implements View {
 		threads.add(thread);
 	}
 
+	/**
+	 * Displays a message with maze with array of bytes.
+	 * @param arr - Maze with array of bytes
+	 * @param msg - Message
+	 */
 	public void displayMessageWithMaze(byte[] byteArr , String msg) {
 
 		Maze3d maze;
@@ -921,9 +989,18 @@ public class MazeWindow extends BasicWindow implements View {
 
 	}
 
+	/**
+	 * Displays a 3d maze that generated.
+	 * @param byteArray - Byte array representing the maze 3d.
+	 * @throws Exception exception
+	 */
 	@Override
 	public void displayMaze(byte[] byteArray) throws Exception {}
 
+	/**
+	 * Display he cross section that the client asked for.
+	 * @param crossSection - Cross section , a matrix (2d array).
+	 */
 	@Override
 	public void displayCrossSection(int[][] crossSection) {
 		mazeDisplay.setGoalPosition(maze.getGoalPosition());
@@ -939,12 +1016,20 @@ public class MazeWindow extends BasicWindow implements View {
 			mazeDisplay.setLevel(maze.getStartPosition().getX());
 	}
 
+	/**
+	 * Display the solution of the maze.
+	 * @param solution - Solution of the maze.
+	 */
 	@Override
 	public void displaySolution(Solution<String> solution) {
 		mazeDisplay.setSolution(solution);
 		mazeDisplay.start();
 	}
 
+	/**
+	 * Setter to set current position
+	 * @param pos - Position that need to be set
+	 */
 	public void setCurrentPosition (Position pos) {
 		Display.getDefault().asyncExec(new Runnable() {
 			public void run() {

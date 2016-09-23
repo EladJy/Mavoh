@@ -5,15 +5,30 @@ import java.util.HashMap;
 import model.Model;
 import view.View;
 
+/**
+ * Command manager which get commands from View or Model and pass it
+ * @author Elad Jarby
+ * @version 1.0
+ * @since 13.09.2016
+ */
 public class CommandsManager {
 	private Model model;
 	private View view;
 
+	/**
+	 * Constructor to initialize View and Model
+	 * @param model - Model of the presenter
+	 * @param view - View of the presenter
+	 */
 	public CommandsManager(Model model , View view) {
 		this.model = model;
 		this.view = view;
 	}
 
+	/**
+	 * Get all commands that possible in the presenter
+	 * @return Hash map of all commands
+	 */
 	public HashMap<String, Command> getCommandsMap() {
 		HashMap<String, Command> commands = new HashMap<String , Command>();
 		commands.put("generate_3d_maze", new GenerateMazeCommand());
@@ -32,6 +47,12 @@ public class CommandsManager {
 		return commands;
 	}
 
+	/**
+	 * Command to generate maze
+	 * @author Elad Jarby
+	 * @version 1.0
+	 * @since 13.09.2016
+	 */
 	class GenerateMazeCommand implements Command {
 
 		@Override
@@ -41,6 +62,12 @@ public class CommandsManager {
 
 	}
 
+	/**
+	 * Command to get maze and display it
+	 * @author Elad Jarby
+	 * @version 1.0
+	 * @since 13.09.2016
+	 */
 	class getMaze implements Command {
 		String mazeName;
 		@Override
@@ -61,6 +88,12 @@ public class CommandsManager {
 
 	}
 
+	/**
+	 * Command to get cross section
+	 * @author Elad Jarby
+	 * @version 1.0
+	 * @since 13.09.2016
+	 */
 	class getCrossSection implements Command {
 		String mazeName;
 		@Override
@@ -77,6 +110,12 @@ public class CommandsManager {
 
 	}
 
+	/**
+	 * Command to get all the files / directories from specific path
+	 * @author Elad Jarby
+	 * @version 1.0
+	 * @since 13.09.2016
+	 */
 	class dirPath implements Command {
 		String[] fileList;
 		@Override
@@ -90,6 +129,12 @@ public class CommandsManager {
 
 	}
 
+	/**
+	 * Command to save the maze
+	 * @author Elad Jarby
+	 * @version 1.0
+	 * @since 13.09.2016
+	 */
 	class saveMaze implements Command {
 
 		@Override
@@ -99,6 +144,12 @@ public class CommandsManager {
 
 	}
 
+	/**
+	 * Command to load the maze
+	 * @author Elad Jarby
+	 * @version 1.0
+	 * @since 13.09.2016
+	 */
 	class loadMaze implements Command {
 
 		@Override
@@ -108,6 +159,12 @@ public class CommandsManager {
 
 	}
 
+	/**
+	 * Command to get solution ready
+	 * @author Elad Jarby
+	 * @version 1.0
+	 * @since 13.09.2016
+	 */
 	class getSolutionReady implements Command {
 
 		@Override
@@ -117,6 +174,12 @@ public class CommandsManager {
 
 	}
 
+	/**
+	 * Command to get solution
+	 * @author Elad Jarby
+	 * @version 1.0
+	 * @since 13.09.2016
+	 */
 	class getSolution implements Command {
 		String mazeName;
 		@Override
@@ -131,6 +194,12 @@ public class CommandsManager {
 
 	}
 
+	/**
+	 * Command to exit
+	 * @author Elad Jarby
+	 * @version 1.0
+	 * @since 13.09.2016
+	 */
 	class exitCommand implements Command {
 
 		@Override
@@ -140,6 +209,12 @@ public class CommandsManager {
 
 	}
 
+	/**
+	 * Command to save properties
+	 * @author Elad Jarby
+	 * @version 1.0
+	 * @since 13.09.2016
+	 */
 	class saveProperties implements Command {
 
 		@Override
@@ -149,6 +224,12 @@ public class CommandsManager {
 
 	}
 
+	/**
+	 * Command to display a message
+	 * @author Elad Jarby
+	 * @version 1.0
+	 * @since 13.09.2016
+	 */
 	class displayMessage implements Command {
 
 		@Override
@@ -163,6 +244,12 @@ public class CommandsManager {
 		}
 	}
 
+	/**
+	 * Command to display an error
+	 * @author Elad Jarby
+	 * @version 1.0
+	 * @since 13.09.2016
+	 */
 	class displayError implements Command {
 
 		@Override

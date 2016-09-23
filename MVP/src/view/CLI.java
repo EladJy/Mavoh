@@ -5,15 +5,30 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Observable;
 
+/**
+ * The class is responsible to get correct user input</br>
+ * And to send this information to the presenter.
+ * @author Elad Jarby
+ * @version 1.0
+ * @since 13.09.2016
+ */
 public class CLI extends Observable {
 	private BufferedReader in;
 	private PrintWriter out;
 	
+	/**
+	 * Constructor to initialize the CLI.
+	 * @param in - Input reader.
+	 * @param out - Output writer.
+	 */
 	public CLI(BufferedReader in , PrintWriter out) {
 		this.in = in;
 		this.out = out;
 	}
 	
+	/**
+	 * Starting the CLI.
+	 */
 	public void start(){
 		Thread thread = new Thread(new Runnable() {
 			@Override

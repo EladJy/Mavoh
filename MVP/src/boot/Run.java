@@ -10,7 +10,10 @@ import view.MazeWindow;
 import view.MyView;
 
 /**
- * 
+ * Run the program
+ * @author Elad Jarby
+ * @version 1.0
+ * @since 13.09.2016
  */
 public class Run {
 	public static void main(String[] args) {
