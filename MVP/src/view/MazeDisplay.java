@@ -12,7 +12,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import algorithms.mazeGenerators.Position;
@@ -39,6 +38,8 @@ public class MazeDisplay extends Canvas {
 	Position previousPosition;
 	Position currentPosition;
 	Position goalPosition;
+	Image wall , free , goal;
+	Image winner;
 	public static final int FREE = 0;
 	public static final int WALL = 1;
 	/**
@@ -52,9 +53,9 @@ public class MazeDisplay extends Canvas {
 		inGame = false;
 		goalPosition = new Position();
 		gameCharacter = new GameCharacter();
-		Image wall=new Image(getDisplay(),"resources/wall.jpg");
-		Image free=new Image(getDisplay(),"resources/floor.jpg");
-		Image goal=new Image(getDisplay(),"resources/goal.png");
+		wall = new Image(getDisplay(),"resources/wall.jpg");
+		free = new Image(getDisplay(),"resources/floor.jpg");
+		goal = new Image(getDisplay(),"resources/goal.png");
 
 		/**
 		 * Paint listener - if the window is changing
@@ -174,7 +175,7 @@ public class MazeDisplay extends Canvas {
 		if(axis.equals("z")) {
 			int z = pos.getZ();
 			setLevel(z);
-			if(z >= 0 && z < maze3DArray.length) {
+			if(z >= 0 && z < maze3DArray.length - 1) {
 				for(int y = 0 ; y < maze3DArray[0].length ; y++) {
 					for(int x = 0 ; x < maze3DArray[0][0].length ; x++) {
 						mazeData[y][x] = maze3DArray[z][y][x];
@@ -186,7 +187,7 @@ public class MazeDisplay extends Canvas {
 		if(axis.equals("y")) {
 			int y = pos.getY();
 			setLevel(y);
-			if(y > 0 && y < maze3DArray[0].length - 1) {
+			if(y >= 0 && y < maze3DArray[0].length - 1) {
 				for(int z = 0 ; z < maze3DArray.length ; z++) {
 					for(int x = 0 ; x < maze3DArray[0][0].length ; x++) {
 						mazeData[z][x] = maze3DArray[z][y][x];
@@ -198,7 +199,7 @@ public class MazeDisplay extends Canvas {
 		if(axis.equals("x")) {
 			int x = pos.getX();
 			setLevel(x);
-			if(x > 0 && x < maze3DArray[0][0].length - 1) {
+			if(x >= 0 && x < maze3DArray[0][0].length - 1) {
 				for(int z = 0 ; z < maze3DArray.length ; z++) {
 					for(int y = 0 ; y < maze3DArray[0].length ; y++) {
 						mazeData[z][y] = maze3DArray[z][y][x];
@@ -264,9 +265,8 @@ public class MazeDisplay extends Canvas {
 	 * Display winning message
 	 */
 	public void displayWinningMsg() {
-		Thread thread = new Thread(new Runnable() {
+		getDisplay().syncExec(new Runnable() {
 			public void run() {
-				final Display display = new Display();
 				final Shell shell = new Shell();
 				shell.setText("YOU WIN!");
 				shell.setLayout(new FillLayout());
@@ -277,7 +277,7 @@ public class MazeDisplay extends Canvas {
 
 					@Override
 					public void paintControl(PaintEvent e) {
-						Image image = new Image(display , "./resources/winner.jpg");
+						Image image = new Image(getDisplay() , "./resources/winner.jpg");
 						e.gc.drawImage(image, 0, 0);
 						image.dispose();						
 					}
@@ -285,15 +285,8 @@ public class MazeDisplay extends Canvas {
 
 				shell.setSize(500,500);
 				shell.open();
-				while(!shell.isDisposed()) {
-					if(!display.readAndDispatch()) {
-						display.sleep();
-					}
-				}
-				display.dispose();
 			}
 		});
-		thread.start();
 	}
 
 	/**
@@ -347,7 +340,7 @@ public class MazeDisplay extends Canvas {
 		int length= getSize().x;
 		int cellX = length/mazeData[0].length;
 		if(axis.equals("z")) {
-			if(currentPosition.getX() < maze3DArray[0][0].length) {
+			if(currentPosition.getX() < maze3DArray[0][0].length - 1) {
 				if(maze3DArray[currentPosition.getZ()][currentPosition.getY()][currentPosition.getX() + 1] == 0) {
 					gameCharacter.x = (currentPosition.getX() + 1) * cellX;
 					currentPosition.setX(currentPosition.getX() + 1);
@@ -355,7 +348,7 @@ public class MazeDisplay extends Canvas {
 				}
 			}
 		} else if (axis.equals("y")) {
-			if(currentPosition.getX() < maze3DArray[0][0].length) {
+			if(currentPosition.getX() < maze3DArray[0][0].length - 1) {
 				if(mazeData[currentPosition.getZ()][currentPosition.getX() + 1] == 0) {
 					gameCharacter.x = (currentPosition.getX() + 1) * cellX;
 					currentPosition.setX(currentPosition.getX() + 1);
@@ -363,7 +356,7 @@ public class MazeDisplay extends Canvas {
 				}
 			}
 		} else if (axis.equals("x")) {
-			if(currentPosition.getY() < maze3DArray[0].length) {
+			if(currentPosition.getY() < maze3DArray[0].length - 1) {
 				if(mazeData[currentPosition.getZ()][currentPosition.getY() + 1] == 0) {
 					gameCharacter.x = (currentPosition.getY() + 1) * cellX;
 					currentPosition.setY(currentPosition.getY() + 1);

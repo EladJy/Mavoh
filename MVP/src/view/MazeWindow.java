@@ -63,7 +63,6 @@ public class MazeWindow extends BasicWindow implements View {
 	Button btnGetHints;
 	Button btnSaveMazeName;
 	String mazeName = "elad";
-	String choosenAxis = "";
 	int maxSize;
 	boolean canCloseGame = true;
 	String[] floors = {};
@@ -549,7 +548,7 @@ public class MazeWindow extends BasicWindow implements View {
 				fd.setText("Save");
 				String selected = fd.open();
 				if(selected != null && maze != null) {
-					selected = selected.substring(selected.lastIndexOf("\\") +1);
+					selected = selected.substring(selected.lastIndexOf("\\") +1 , selected.lastIndexOf("."));
 					String command = "save_maze " + mazeName + " " + selected;
 					setChanged();
 					notifyObservers(command);
@@ -769,7 +768,6 @@ public class MazeWindow extends BasicWindow implements View {
 					}
 					String command = "display_cross_section " + setPerspective.getText() + " "  + String.valueOf(index) + " " + mazeName;
 					mazeDisplay.setAxis(setPerspective.getText());
-					choosenAxis = setPerspective.getText();
 					setChanged();
 					notifyObservers(command);
 				} else {
@@ -850,7 +848,7 @@ public class MazeWindow extends BasicWindow implements View {
 			public void widgetSelected(SelectionEvent e) {
 				btnGetHints.setEnabled(false);
 				if(mazeDisplay.inGame) {
-					if(!choosenAxis.equals("")) {
+					if(!setPerspective.getText().equals("")) {
 						String command = "display_solution " + mazeName;
 						setChanged();
 						notifyObservers(command);
@@ -970,23 +968,16 @@ public class MazeWindow extends BasicWindow implements View {
 	 */
 	@Override
 	public void displayError(String error) {
-		Thread thread = new Thread(new Runnable() {
+		display.asyncExec(new Runnable() {
 			public void run() {
 				canCloseGame = false;
-				Display display = new Display();
-				Shell shell = new Shell(display);
-
 				int style = SWT.ICON_ERROR | SWT.OK;
-
 				MessageBox msgBox = new MessageBox(shell,style);
 				msgBox.setMessage(error);
 				msgBox.open();
-				display.dispose();
 				canCloseGame = true;
 			}
 		});
-		thread.start();
-		threads.add(thread);		
 	}
 
 	/**
@@ -995,23 +986,16 @@ public class MazeWindow extends BasicWindow implements View {
 	 */
 	@Override
 	public void displayMessage(String msg) {
-		Thread thread = new Thread(new Runnable() {
+		display.asyncExec(new Runnable() {
 			public void run() {
 				canCloseGame = false;
-				Display display = new Display();
-				Shell shell = new Shell(display);
-
 				int style = SWT.ICON_INFORMATION | SWT.OK;
-
 				MessageBox msgBox = new MessageBox(shell,style);
 				msgBox.setMessage(msg);
 				msgBox.open();
-				display.dispose();
 				canCloseGame = true;
 			}
 		});
-		thread.start();
-		threads.add(thread);
 	}
 
 	/**
@@ -1036,7 +1020,6 @@ public class MazeWindow extends BasicWindow implements View {
 						setPerspective.setText("z");
 						mazeDisplay.set3DMaze(maze3DArray);
 						String command = "display_cross_section " + "z" + " " + maze.getStartPosition().getZ() + " " + mazeName;
-						choosenAxis = setPerspective.getText();
 						setChanged();
 						notifyObservers(command);
 					}
@@ -1052,7 +1035,6 @@ public class MazeWindow extends BasicWindow implements View {
 						setPerspective.setText("z");
 						mazeDisplay.set3DMaze(maze3DArray);
 						String command = "display_cross_section " + "z" + " " + maze.getStartPosition().getZ() + " " + mazeName;
-						choosenAxis = setPerspective.getText();
 						setChanged();
 						notifyObservers(command);
 						setPerspective.setEnabled(true);
@@ -1103,7 +1085,6 @@ public class MazeWindow extends BasicWindow implements View {
 		mazeDisplay.setSolution(solution);
 		String command = "display_cross_section " + "z" + " " + maze.getStartPosition().getZ() + " " + mazeName;
 		setPerspective.setText("z");
-		choosenAxis = setPerspective.getText();
 		setChanged();
 		notifyObservers(command);
 		mazeDisplay.start();
