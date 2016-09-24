@@ -548,7 +548,11 @@ public class MazeWindow extends BasicWindow implements View {
 				fd.setText("Save");
 				String selected = fd.open();
 				if(selected != null && maze != null) {
-					selected = selected.substring(selected.lastIndexOf("\\") +1 , selected.lastIndexOf("."));
+					if(selected.lastIndexOf(".maz") != -1) {
+						selected = selected.substring(selected.lastIndexOf("\\") +1 , selected.lastIndexOf(".maz"));
+					} else {
+						selected = selected.substring(selected.lastIndexOf("\\") +1);
+					}
 					String command = "save_maze " + mazeName + " " + selected;
 					setChanged();
 					notifyObservers(command);
@@ -645,7 +649,7 @@ public class MazeWindow extends BasicWindow implements View {
 				fd.setFilterExtensions(new String[] { "*.maz" });
 				String selected = fd.open();
 				if(selected != null) {
-					mazeName = selected.substring(selected.lastIndexOf("\\") +1 , selected.lastIndexOf("."));
+					mazeName = selected.substring(selected.lastIndexOf("\\") +1 , selected.lastIndexOf(".maz"));
 					txtName.setText(mazeName);
 					String command = "load_maze " + mazeName + " " + mazeName;
 					btnSaveMazeName.setEnabled(false);
