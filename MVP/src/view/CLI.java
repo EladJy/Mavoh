@@ -37,6 +37,10 @@ public class CLI extends Observable {
 				while (true) {
 					try {
 						String commandLine = in.readLine();
+						if(commandLine.equals("help")) {
+							printInstructions();
+							continue;
+						}
 						setChanged();
 						notifyObservers(commandLine);
 						if(commandLine.equals("exit"))
@@ -71,7 +75,8 @@ public class CLI extends Observable {
 		System.out.println(">> 7)  solve <maze name>                                                                             <<");
 		System.out.println(">> 8)  display_solution <maze name>                                                                  <<");
 		System.out.println(">> 9)  save_properties <number of threads> <algorithm> <search algoirthm> <maze max size> <cli/gui>  <<");
-		System.out.println(">> 10) exit                                                                                          <<");
+		System.out.println(">> 10) help                                                                                          <<");
+		System.out.println(">> 11) exit                                                                                          <<");
 		System.out.println("=======================================================================================================");
 	}
 }

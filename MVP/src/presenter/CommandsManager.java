@@ -100,10 +100,8 @@ public class CommandsManager {
 		public void doCommand(String[] args) {
 			if (args == null) {
 				int[][] crossSection = model.getCrossSection();
-				//byte[] byteArr = model.getMazeFromHashMap(mazeName);
 				view.displayCrossSection(crossSection);
 			} else {
-				mazeName = args[2];
 				model.crossSection(args);			
 			}
 		}

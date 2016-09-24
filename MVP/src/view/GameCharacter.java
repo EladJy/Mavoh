@@ -15,6 +15,14 @@ public class GameCharacter {
 	Image image;
 	
 	/**
+	 * Default constructor to initialize parameters
+	 */
+	public GameCharacter() {
+		x = 0;
+		y = 0;
+	}
+	
+	/**
 	 * Constructor , Initialize the character with the given parameters
 	 * @param x - Position of the character according to X axis
 	 * @param y - Position of the character according to Y axis

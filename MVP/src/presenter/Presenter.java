@@ -48,6 +48,9 @@ public class Presenter implements Observer {
 				if(arr.length > 1) {
 					String commandArgs = commandLine.substring(commandLine.indexOf(" ") +1);
 					args = commandArgs.split(" ");
+				} else if(!command.equals("exit")){
+					view.displayError("Invalid number of parameters");
+					return;
 				}
 				Command cmd = commands.get(command);
 				cmd.doCommand(args);

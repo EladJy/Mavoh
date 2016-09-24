@@ -41,7 +41,6 @@ public class MazeDisplay extends Canvas {
 	Position goalPosition;
 	public static final int FREE = 0;
 	public static final int WALL = 1;
-
 	/**
 	 * Constructor to initialize all the parameters
 	 * @param parent - Parent shell 
@@ -52,8 +51,7 @@ public class MazeDisplay extends Canvas {
 		goalLevel = 1;
 		inGame = false;
 		goalPosition = new Position();
-		gameCharacter = new GameCharacter(0,0);
-		currentPosition = new Position(1,1,1);
+		gameCharacter = new GameCharacter();
 		Image wall=new Image(getDisplay(),"resources/wall.jpg");
 		Image free=new Image(getDisplay(),"resources/floor.jpg");
 		Image goal=new Image(getDisplay(),"resources/goal.png");

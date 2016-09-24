@@ -121,6 +121,12 @@ public class MyModel extends Observable implements Model {
 			notifyObservers("error");
 			return;
 		}
+		if(!(isInteger(arr[1]) || isInteger(arr[2]) || isInteger(arr[2]))) {
+			setChanged();
+			message = "Axis must be integers!";
+			notifyObservers("error");
+			return;
+		}
 		mazeName = arr[0];
 		int maxMaze = properties.getMaxMazeSize();
 		int x = Integer.parseInt(arr[1]);
@@ -207,6 +213,12 @@ public class MyModel extends Observable implements Model {
 		if (arr == null || arr.length != 3) {
 			setChanged();
 			message = "Invalid number of parameters";
+			notifyObservers("error");
+			return;
+		}
+		if(!isInteger(arr[1])) {
+			setChanged();
+			message = "Index must be integer";
 			notifyObservers("error");
 			return;
 		}
@@ -562,6 +574,12 @@ public class MyModel extends Observable implements Model {
 			notifyObservers("error");
 			return;
 		}
+		if(!(isInteger(arr[0]) || isInteger(arr[3]))) {
+			setChanged();
+			message = "Number of threads or max size of maze must be integers";
+			notifyObservers("error");
+			return;
+		}
 		int numberOfThreads = Integer.parseInt(arr[0]);
 		String algorithm = arr[1];
 		String searchAlgorithm = arr[2];
@@ -698,4 +716,24 @@ public class MyModel extends Observable implements Model {
 		}
 	}
 
+	/**
+	 * Function that check if the string is int
+	 * @param s - String that need to check
+	 * @return True if is int , otherwise false
+	 */
+	public static boolean isInteger(String s) {
+	    return isInteger(s,10);
+	}
+
+	public static boolean isInteger(String s, int radix) {
+	    if(s.isEmpty()) return false;
+	    for(int i = 0; i < s.length(); i++) {
+	        if(i == 0 && s.charAt(i) == '-') {
+	            if(s.length() == 1) return false;
+	            else continue;
+	        }
+	        if(Character.digit(s.charAt(i),radix) < 0) return false;
+	    }
+	    return true;
+	}
 }
