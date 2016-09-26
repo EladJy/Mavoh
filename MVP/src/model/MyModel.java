@@ -146,6 +146,13 @@ public class MyModel extends Observable implements Model {
 			notifyObservers("error");
 			return;
 		}
+		
+		if( x < 3 || y < 3 || z < 3) {
+			setChanged();
+			message = "Error , you can't generate maze that one of the axis lower than 3";
+			notifyObservers("error");
+			return;
+		}
 
 		threadPool.submit(new Callable<Maze3d>() {
 			@Override
@@ -611,6 +618,13 @@ public class MyModel extends Observable implements Model {
 		if( maxSize > 60 ) {
 			setChanged();
 			message = "Maximum of max maze can be 60";
+			notifyObservers("error");
+			return;
+		}
+		
+		if( maxSize < 3 ) {
+			setChanged();
+			message = "Minimum of max maze can be 3";
 			notifyObservers("error");
 			return;
 		}
