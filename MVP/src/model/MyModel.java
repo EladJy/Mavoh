@@ -121,7 +121,7 @@ public class MyModel extends Observable implements Model {
 			notifyObservers("error");
 			return;
 		}
-		if(!(isInteger(arr[1]) || isInteger(arr[2]) || isInteger(arr[2]))) {
+		if(!isInteger(arr[1]) || !isInteger(arr[2]) || !isInteger(arr[2])) {
 			setChanged();
 			message = "Axis must be integers!";
 			notifyObservers("error");
@@ -194,6 +194,7 @@ public class MyModel extends Observable implements Model {
 		}
 		mazeName = arr[0];
 		if(!mazes.containsKey(mazeName)) {
+			
 			setChanged();
 			message = "There is no maze with the name: " + mazeName;
 			notifyObservers("error");
@@ -581,7 +582,7 @@ public class MyModel extends Observable implements Model {
 			notifyObservers("error");
 			return;
 		}
-		if(!(isInteger(arr[0]) || isInteger(arr[3]))) {
+		if(!isInteger(arr[0]) || !isInteger(arr[3])) {
 			setChanged();
 			message = "Number of threads or max size of maze must be integers";
 			notifyObservers("error");

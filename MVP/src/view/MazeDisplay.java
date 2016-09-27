@@ -495,21 +495,6 @@ public class MazeDisplay extends Canvas {
 	}
 
 	/**
-	 * Function to perform zoom in or zoom out with ctrl + mouse wheel
-	 * @param scroll - Positive for zoom in , Negative for zoom out
-	 */
-	public void performZoom(int scroll) {
-		int length = getSize().x;
-		int width = getSize().y;
-
-
-		if(scroll < 0)
-			setSize((int)(length*0.99), (int)(width*0.99));
-		else
-			setSize((int)(length*1.01), (int)(width*1.01));
-	}
-
-	/**
 	 * Setter for axis - z / y /x 
 	 * @param axis - String that represents axis z / y / x
 	 */

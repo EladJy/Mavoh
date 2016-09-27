@@ -804,6 +804,7 @@ public class MazeWindow extends BasicWindow implements View {
 				setWidth.setEnabled(true);
 				setLength.setEnabled(true);
 				btnGenerateMaze.setEnabled(true);
+				btnSaveMazeName.setEnabled(true);
 				btnGetHints.setEnabled(false);
 				String msg = "Hello,\n1. Choose size of floors , width , length for maze.\n2.Press ''Generate Maze''\n3. Choose axis - z / y / x";
 				displayMessage(msg);
@@ -935,7 +936,7 @@ public class MazeWindow extends BasicWindow implements View {
 			@Override
 			public void mouseScrolled(MouseEvent g) {
 				if((g.stateMask & SWT.CONTROL) == SWT.CONTROL) {
-					mazeDisplay.performZoom(g.count);
+					mazeDisplay.setSize(mazeDisplay.getSize().x + g.count, mazeDisplay.getSize().y + g.count);
 				}
 			}
 		});
@@ -1041,6 +1042,7 @@ public class MazeWindow extends BasicWindow implements View {
 						String command = "display_cross_section " + "z" + " " + maze.getStartPosition().getZ() + " " + mazeName;
 						setChanged();
 						notifyObservers(command);
+						btnGetHints.setEnabled(true);
 						setPerspective.setEnabled(true);
 						btnSolveMaze.setEnabled(true);
 					}
