@@ -98,11 +98,11 @@ public class MazeWindow extends BasicWindow implements View {
 		threads = new ArrayList<Thread>(properties.getNumberOfThreads());
 		buttonImage = new Image(display, "resources/button.jpg");
 		buttonDisable = new Image(display, "resources/buttonDisable.jpg");
-		icon = new Image(display, "icons/icon.png");
-		iconProperties = new Image(display, "icons/properties.png");
-		iconSave = new Image(display, "icons/save.png");
-		iconLoad = new Image(display, "icons/load.png");
-		iconExit = new Image(display, "icons/exit.png");
+		icon = new Image(display, "resources/icons/icon.png");
+		iconProperties = new Image(display, "resources/icons/properties.png");
+		iconSave = new Image(display, "resources/icons/save.png");
+		iconLoad = new Image(display, "resources/icons/load.png");
+		iconExit = new Image(display, "resources/icons/exit.png");
 		setProperties();		
 	}
 
