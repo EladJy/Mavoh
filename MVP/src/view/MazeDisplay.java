@@ -236,15 +236,13 @@ public class MazeDisplay extends Canvas {
 							int cellY = width / mazeData.length + startPositionY / mazeData.length;
 
 							Position currentPosition = new Position();
-							if(!solutionPath.isEmpty()) {
-								currentPosition = currentPosition.toPosition(solutionPath.get(0).getValue().toString());
-								solutionPath.remove(0);
-								gameCharacter.x = currentPosition.getX() * cellX;
-								gameCharacter.y = currentPosition.getY() * cellY;
-								setCurrentPosition(currentPosition);
-								setNewFloorData(currentPosition);
-								redraw();
-							}
+							currentPosition = currentPosition.toPosition(solutionPath.get(0).getValue().toString());
+							solutionPath.remove(0);
+							gameCharacter.x = currentPosition.getX() * cellX;
+							gameCharacter.y = currentPosition.getY() * cellY;
+							setCurrentPosition(currentPosition);
+							setNewFloorData(currentPosition);
+							redraw();
 						} else {
 							stopDisplaySolution();
 							if(isInGoalPosition()) {
@@ -517,7 +515,7 @@ public class MazeDisplay extends Canvas {
 	public Position getCurrentPosition () {
 		return currentPosition;
 	}
-	
+
 	/**
 	 * Setter to set the goal level
 	 * @param level - Goal level
@@ -525,7 +523,7 @@ public class MazeDisplay extends Canvas {
 	public void setLevel(int level) {
 		this.goalLevel = level;
 	}
-	
+
 	/**
 	 * Setter to set the goal position of the maze
 	 * @param pos - Goal position of the maze
