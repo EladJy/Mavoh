@@ -8,7 +8,7 @@
    <int>20</int>
   </void>
   <void property="numberOfThreads">
-   <int>6</int>
+   <int>10</int>
   </void>
   <void property="searchAlgorithm">
    <string>dfs</string>

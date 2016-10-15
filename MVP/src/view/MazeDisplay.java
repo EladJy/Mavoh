@@ -215,7 +215,7 @@ public class MazeDisplay extends Canvas {
 	 */
 	public void start() {
 		displaySolution = true;
-		ArrayList<State<String>> solutionPath = solution.getStates();
+		ArrayList<State<String>> solutionPath = new ArrayList<State<String>>(solution.getStates());
 		Collections.reverse(solutionPath);
 		setAxis("z");
 		setNewFloorData((new Position()).toPosition(solutionPath.get(0).getValue().toString()));
@@ -265,7 +265,7 @@ public class MazeDisplay extends Canvas {
 	public void displayWinningMsg() {
 		getDisplay().syncExec(new Runnable() {
 			public void run() {
-				final Shell shell = new Shell();
+				final Shell shell = new Shell(SWT.TITLE|SWT.SYSTEM_MODAL| SWT.CLOSE | SWT.MAX);
 				shell.setText("YOU WIN!");
 				shell.setLayout(new FillLayout());
 

@@ -50,7 +50,7 @@ public class MyModel extends Observable implements Model {
 	private String mazeName;
 	private Properties properties;
 
-	
+
 	public HashMap<String, Maze3dGenerator> getMaze3dGenerator() {
 		HashMap<String, Maze3dGenerator> commands = new HashMap<String , Maze3dGenerator>();
 		commands.put("simple", new SimpleMaze3dGenerator());
@@ -58,14 +58,14 @@ public class MyModel extends Observable implements Model {
 		commands.put("growing-last" , new GrowingTreeGenerator(new GrowingTreeLastCell()));
 		return commands;
 	}
-	
+
 	public HashMap<String, Searcher<String>> getSearcher() {
 		HashMap<String, Searcher<String>> commands = new HashMap<String , Searcher<String>>();
 		commands.put("dfs", new DFS<String>());
 		commands.put("bfs" , new BFS<String>());
 		return commands;
 	}
-	
+
 	public MyModel(String[] path) {
 		mazes = new HashMap<String, Maze3d>();
 		mazeSolutions = new HashMap<String, Solution<String>>();
@@ -73,7 +73,7 @@ public class MyModel extends Observable implements Model {
 		properties = PropertiesLoader.getInstance().getProperties();
 		threadPool = Executors.newFixedThreadPool(properties.getNumberOfThreads());
 	}
-	
+
 	/**
 	 * Handling with command: dir < path ></br>
 	 * @param dirArray - Array of string , containing string with path.
@@ -129,9 +129,9 @@ public class MyModel extends Observable implements Model {
 		}
 		mazeName = arr[0];
 		int maxMaze = properties.getMaxMazeSize();
-		int x = Integer.parseInt(arr[1]);
+		int z = Integer.parseInt(arr[1]);
 		int y = Integer.parseInt(arr[2]);
-		int z = Integer.parseInt(arr[3]);
+		int x = Integer.parseInt(arr[3]);
 		String algorithm = properties.getDefaultAlgorithm();
 		if( x < 1 || y < 1 || z < 1 ) {
 			setChanged();
@@ -139,21 +139,26 @@ public class MyModel extends Observable implements Model {
 			notifyObservers("error");
 			return;
 		}
-		
+
 		if( x > maxMaze || y > maxMaze || z > maxMaze) {
 			setChanged();
 			message = "Error , you can't generate maze that one of the axis greater than: " + maxMaze;
 			notifyObservers("error");
 			return;
 		}
-		
+
 		if( x < 3 || y < 3 || z < 3) {
 			setChanged();
 			message = "Error , you can't generate maze that one of the axis lower than 3";
 			notifyObservers("error");
 			return;
 		}
-
+//		if(mazes.containsKey(mazeName)) {
+//			setChanged();
+//			message = "Maze already exist , try to generate with other name.";
+//			notifyObservers("error");
+//			return;
+//		}
 		threadPool.submit(new Callable<Maze3d>() {
 			@Override
 			public Maze3d call() throws Exception {
@@ -165,21 +170,24 @@ public class MyModel extends Observable implements Model {
 					notifyObservers("error");
 					return null;
 				}
-				if(mazes.containsKey(mazeName)) {
-					message = "You override maze: " + mazeName + " with new parameters.";
-					mazes.remove(mazeName);
-				}
-
-				mazes.put(arr[0].toString(), mg.generate(Integer.parseInt(arr[1]), Integer.parseInt(arr[2]), Integer.parseInt(arr[3])));
+				Maze3d maze = mg.generate(z , y , x);
 				setChanged();
-				message = "Maze: " + arr[0] + " is ready!";
+				if(!maze.equals(mazes.get(mazeName)) && mazes.get(mazeName) != null) {
+					mazes.remove(mazeName);
+					mazeSolutions.remove(mazeName);
+					mazes.put(arr[0].toString(), maze);
+					message = "Maze: " + arr[0] + " is already exist.\nThe maze is override and now ready!";
+				} else {
+					message = "Maze: " + mazeName + " is ready!";
+				}
+				mazes.put(mazeName, maze);
 				notifyObservers("displayMessage");
 				return mazes.get(mazeName);
 			}
 		});
 
 	}
-	
+
 	/**
 	 * Handling with command: display < maze name >
 	 * @param arr - Array of one string , containing the maze name that need to display.
@@ -194,7 +202,7 @@ public class MyModel extends Observable implements Model {
 		}
 		mazeName = arr[0];
 		if(!mazes.containsKey(mazeName)) {
-			
+
 			setChanged();
 			message = "There is no maze with the name: " + mazeName;
 			notifyObservers("error");
@@ -209,7 +217,7 @@ public class MyModel extends Observable implements Model {
 		}
 
 	}
-	
+
 	/**
 	 * Handling with command: display_cross_section < axis > < index > < maze name ></br>
 	 * <b>axis:</b> z - for floors , y - for width , x - for length.</br>
@@ -362,7 +370,9 @@ public class MyModel extends Observable implements Model {
 		mazeName = arr[1];
 
 		//		if (mazes.containsKey(mazeName)) {
-		//			controller.displayError("Maze already exist , try to load with other name.");
+		//			setChanged();
+		//			message = "Maze already exist , try to load with other name.";
+		//			notifyObservers("error");
 		//			return;
 		//		}
 		if(!file.exists() || file.isDirectory()) {
@@ -385,9 +395,16 @@ public class MyModel extends Observable implements Model {
 
 			byte[] byteArr = new byte[data.readInt()];
 			in.read(byteArr);
-			mazes.put(mazeName, new Maze3d(byteArr));
+			Maze3d maze = new Maze3d(byteArr);
 			setChanged();
-			message = mazeName + " has been loaded from file: "  + fileName;	
+			if(!maze.equals(mazes.get(mazeName)) &&  mazes.get(mazeName) != null) {
+				mazes.remove(mazeName);
+				mazeSolutions.remove(mazeName);
+				message = mazeName + " is already exist.\nThe maze is override and has been loaded from file: "  + fileName + " ";	
+			} else {
+				message = mazeName + " has been loaded from file: "  + fileName;	
+			}
+			mazes.put(mazeName, maze);
 			notifyObservers("displayMessage");
 			in.close();
 			return;
@@ -439,11 +456,17 @@ public class MyModel extends Observable implements Model {
 					notifyObservers("error");
 					return null;
 				}
+				if(!mazeSolutions.containsKey(mazeName)) {
+					mazeSolutions.put(mazeName, searchAlgorithm.Search(mazeSearch));
+					setChanged();
+					message = "Solution for: " + mazeName + " is ready!";
+					notifyObservers("displayMessage");
+				} else {
+					setChanged();
+					message = "Solution for: " + mazeName + " is already exist!";
+					notifyObservers("displayMessage");
+				}
 
-				mazeSolutions.put(mazeName, searchAlgorithm.Search(mazeSearch));
-				setChanged();
-				message = "Solution for: " + mazeName + " is ready!";
-				notifyObservers("displayMessage");
 				return mazeSolutions.get(mazeName);
 			}
 
@@ -536,7 +559,7 @@ public class MyModel extends Observable implements Model {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Load mazes and solution from specific files
 	 */
@@ -601,35 +624,35 @@ public class MyModel extends Observable implements Model {
 			notifyObservers("error");
 			return;
 		}
-		
+
 		if(!algorithms.containsKey(algorithm)) {
 			message = "Invalid algorithm";
 			setChanged();
 			notifyObservers("error");
 			return;
 		}
-		
+
 		if(!searchers.containsKey(searchAlgorithm)) {
 			setChanged();
 			message = "Invalid search algoirthm";
 			notifyObservers("error");
 			return;
 		}
-		
+
 		if( maxSize > 60 ) {
 			setChanged();
 			message = "Maximum of max maze can be 60";
 			notifyObservers("error");
 			return;
 		}
-		
+
 		if( maxSize < 3 ) {
 			setChanged();
 			message = "Minimum of max maze can be 3";
 			notifyObservers("error");
 			return;
 		}
-		
+
 		if(!(view.equals("cli") || view.equals("gui"))) {
 			setChanged();
 			message = "View most to be cli or gui only";
@@ -649,16 +672,16 @@ public class MyModel extends Observable implements Model {
 			message = "You must restart the program before\nthe new setting will take effect.";
 			setChanged();
 			notifyObservers("displayMessage");
-			
+
 		} 
 		catch (FileNotFoundException e) 
 		{
 			e.printStackTrace();
 		}
-		
-		
+
+
 	}
-	
+
 	/**
 	 * Getter to get byte of array from hash map by maze name
 	 * @param maze - Maze name
@@ -668,7 +691,7 @@ public class MyModel extends Observable implements Model {
 	public byte[] getMazeFromHashMap(String maze) {
 		return mazes.get(maze).toByteArray();
 	}
-	
+
 	/**
 	 * Getter to get maze name
 	 * @return Maze name
@@ -701,7 +724,7 @@ public class MyModel extends Observable implements Model {
 	public String[] getList() {
 		return fileList;
 	}
-	
+
 	/**
 	 * Get message
 	 * @return Message
@@ -718,7 +741,7 @@ public class MyModel extends Observable implements Model {
 	public Properties getProperties() {
 		return properties;
 	}
-	
+
 	/**
 	 * Check if there is files called: "Solutions" and "Mazes"</br>
 	 * in the directory
@@ -737,18 +760,18 @@ public class MyModel extends Observable implements Model {
 	 * @return True if is int , otherwise false
 	 */
 	public static boolean isInteger(String s) {
-	    return isInteger(s,10);
+		return isInteger(s,10);
 	}
 
 	public static boolean isInteger(String s, int radix) {
-	    if(s.isEmpty()) return false;
-	    for(int i = 0; i < s.length(); i++) {
-	        if(i == 0 && s.charAt(i) == '-') {
-	            if(s.length() == 1) return false;
-	            else continue;
-	        }
-	        if(Character.digit(s.charAt(i),radix) < 0) return false;
-	    }
-	    return true;
+		if(s.isEmpty()) return false;
+		for(int i = 0; i < s.length(); i++) {
+			if(i == 0 && s.charAt(i) == '-') {
+				if(s.length() == 1) return false;
+				else continue;
+			}
+			if(Character.digit(s.charAt(i),radix) < 0) return false;
+		}
+		return true;
 	}
 }
