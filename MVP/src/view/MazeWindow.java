@@ -684,7 +684,7 @@ public class MazeWindow extends BasicWindow implements View {
 				setPerspective.setEnabled(false);
 				btnGenerateMaze.setEnabled(true);
 				btnGetHints.setEnabled(false);
-				String msg = "Hello,\n1. Choose size of floors , width , length for maze.\n2.Press ''Generate Maze''\n3. Choose axis - z / y / x";
+				String msg = "Hello,\n1. Press ''Generate Maze''\n2. Choose name , floors , width , length\n3. Choose axis - z / y / x";
 				displayMessage(msg);
 			}
 		});
