@@ -724,8 +724,7 @@ public class MyModel extends Observable implements Model {
 	 */
 	public void intializeIfZipped(){
 		File solutions = new File("Solutions.zip");
-		File mazes = new File("Mazes.zip");
-		if(solutions.exists() || mazes.exists()) {
+		if(solutions.exists()) {
 			loadMazesAndSolutions();
 		}
 	}
