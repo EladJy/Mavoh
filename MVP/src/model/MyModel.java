@@ -66,7 +66,7 @@ public class MyModel extends Observable implements Model {
 		return commands;
 	}
 
-	public MyModel(String[] path) {
+	public MyModel() {
 		mazes = new HashMap<String, Maze3d>();
 		mazeSolutions = new HashMap<String, Solution<String>>();
 		intializeIfZipped();
@@ -538,18 +538,6 @@ public class MyModel extends Observable implements Model {
 			GZIPOutputStream gz = new GZIPOutputStream(fos);
 			ObjectOutputStream oos = new ObjectOutputStream(gz);
 			oos.writeObject(mazeSolutions);
-			oos.flush();
-			oos.close();
-			fos.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		try {
-			FileOutputStream fos = new FileOutputStream("Mazes.zip");
-			GZIPOutputStream gz = new GZIPOutputStream(fos);
-			ObjectOutputStream oos = new ObjectOutputStream(gz);
 			oos.writeObject(mazes);
 			oos.flush();
 			oos.close();
@@ -572,17 +560,6 @@ public class MyModel extends Observable implements Model {
 			GZIPInputStream gz = new GZIPInputStream(fis);
 			ObjectInputStream ois = new ObjectInputStream(gz);
 			mazeSolutions = (HashMap<String, Solution<String>>) ois.readObject();
-			ois.close();
-			fis.close();
-		} catch (IOException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		try {
-			FileInputStream fis = new FileInputStream("Mazes.zip");
-			GZIPInputStream gz = new GZIPInputStream(fis);
-			ObjectInputStream ois = new ObjectInputStream(gz);
 			mazes = (HashMap<String, Maze3d>) ois.readObject();
 			ois.close();
 			fis.close();
@@ -590,7 +567,6 @@ public class MyModel extends Observable implements Model {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 
 	/**

@@ -17,7 +17,7 @@ import view.MyView;
  */
 public class Run {
 	public static void main(String[] args) {
-		MyModel model = new MyModel(args);
+		MyModel model = new MyModel();
 		String viewSetup = model.getProperties().getViewSetup();
 		if(viewSetup.equals("cli")) {
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
