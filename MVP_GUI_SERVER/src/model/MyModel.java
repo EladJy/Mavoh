@@ -48,7 +48,7 @@ public class MyModel extends Observable implements Model {
 	}
 
 	private void checkServerProperties() {
-		File f=new File("serverProperties.xml");
+		File f=new File("resources/serverProperties.xml");
 		if(!f.exists())	{
 			makeProperties();
 		}	
@@ -62,7 +62,7 @@ public class MyModel extends Observable implements Model {
 	private void makeProperties() {
 		XMLEncoder xmlEncoder;
 		try {
-			xmlEncoder = new XMLEncoder(new FileOutputStream("serverProperties.xml"));
+			xmlEncoder = new XMLEncoder(new FileOutputStream("resources/serverProperties.xml"));
 			xmlEncoder.writeObject(new ServerProperties(1234, 5,10000,"gui"));
 			xmlEncoder.close();
 			System.out.println("XML File create successfuly!");
@@ -277,7 +277,7 @@ public class MyModel extends Observable implements Model {
 		}
 		try 
 		{
-			XMLEncoder xmlE = new XMLEncoder(new FileOutputStream("serverProperties.xml"));
+			XMLEncoder xmlE = new XMLEncoder(new FileOutputStream("resources/serverProperties.xml"));
 			xmlE.writeObject(new ServerProperties(serverPort ,numberOfClients,timeOut, viewSetup));
 			xmlE.close();
 			serverProperties.setPort(serverPort);

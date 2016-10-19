@@ -28,7 +28,7 @@ public class PropertiesLoader {
 	private PropertiesLoader() 
 	{
 		try {
-			XMLDecoder decoder = new XMLDecoder(new FileInputStream("serverProperties.xml"));
+			XMLDecoder decoder = new XMLDecoder(new FileInputStream("resources/serverProperties.xml"));
 			serverProperties = (ServerProperties)decoder.readObject();
 			decoder.close();
 		} catch (FileNotFoundException e) {

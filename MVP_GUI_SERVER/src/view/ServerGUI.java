@@ -56,7 +56,7 @@ public class ServerGUI extends BasicWindow implements View {
 	public ServerGUI(String title, int width, int height) {
 		super(title, width, height);
 		properties = PropertiesLoader.getInstance().getProperties();
-		icon = new Image(display, "resources/icons/icon.png");
+		icon = new Image(display, "resources/icons/serverIcon.png");
 		iconProperties = new Image(display, "resources/icons/properties.png");
 		iconExit = new Image(display, "resources/icons/exit.png");
 		setProperties();
