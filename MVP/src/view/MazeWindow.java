@@ -1004,6 +1004,8 @@ public class MazeWindow extends BasicWindow implements View {
 						String command = "display_cross_section " + "z" + " " + maze.getStartPosition().getZ() + " " + mazeName;
 						setChanged();
 						notifyObservers(command);
+						btnDisplaySolution.setEnabled(false);
+						btnGenerateMaze.setEnabled(false);
 						btnGetHints.setEnabled(true);
 						setPerspective.setEnabled(true);
 						btnSolveMaze.setEnabled(true);
