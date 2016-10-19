@@ -251,9 +251,9 @@ public class MyModel extends Observable implements Model {
 			notifyObservers("error");
 			return;
 		}
-		if(!isInteger(arr[0]) || !isInteger(arr[1]) || !isInteger(arr[1])) {
+		if(!isInteger(arr[0]) || !isInteger(arr[1]) || !isInteger(arr[2])) {
 			setChanged();
-			message = "Number of threads or max size of maze must be integers";
+			message = "Server port or number of clients or time out must be integar!";
 			notifyObservers("error");
 			return;
 		}
