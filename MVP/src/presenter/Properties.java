@@ -21,7 +21,8 @@ public class Properties implements Serializable {
 	private String viewSetup;
 	private int numberOfThreads;
 	private String searchAlgorithm;
-	
+	private String serverIp;
+	private int serverPort;
 	/**
 	 * Constructor to initialize all parameters
 	 * @param numberOfThreads - Number of threads to run in model.
@@ -30,13 +31,15 @@ public class Properties implements Serializable {
 	 * @param maxMazeSize - Max size of the maze that allowed
 	 * @param viewSetup - View setup - cli / gui
 	 */
-	public Properties(int numberOfThreads , String defaultAlgorithm , String searchAlgorithm , int maxMazeSize , String viewSetup) {
+	public Properties(int numberOfThreads , String defaultAlgorithm , String searchAlgorithm , int maxMazeSize , String viewSetup, String serverIp , int serverPort) {
 		super();
 		this.numberOfThreads = numberOfThreads;
 		this.defaultAlgorithm = defaultAlgorithm;
 		this.viewSetup = viewSetup;
 		this.maxMazeSize = maxMazeSize;
 		this.searchAlgorithm = searchAlgorithm;
+		this.serverIp = serverIp;
+		this.serverPort = serverPort;
 	}
 	
 	/**
@@ -48,6 +51,9 @@ public class Properties implements Serializable {
 		maxMazeSize = p.maxMazeSize;
 		numberOfThreads = p.numberOfThreads;
 		searchAlgorithm = p.searchAlgorithm;
+		serverIp = p.serverIp;
+		serverPort = p.serverPort;
+		
 	}
 
 	/**
@@ -135,5 +141,21 @@ public class Properties implements Serializable {
 	 */
 	public void setMaxMazeSize(int maxMazeSize) {
 		this.maxMazeSize = maxMazeSize;
+	}
+
+	public String getServerIp() {
+		return serverIp;
+	}
+
+	public void setServerIp(String serverIp) {
+		this.serverIp = serverIp;
+	}
+
+	public int getServerPort() {
+		return serverPort;
+	}
+
+	public void setServerPort(int serverPort) {
+		this.serverPort = serverPort;
 	}
 }

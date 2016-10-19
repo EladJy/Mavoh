@@ -11,7 +11,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.concurrent.Callable;
@@ -26,11 +29,9 @@ import algorithms.mazeGenerators.GrowingTreeLastCell;
 import algorithms.mazeGenerators.GrowingTreeRandomCell;
 import algorithms.mazeGenerators.Maze3d;
 import algorithms.mazeGenerators.Maze3dGenerator;
-import algorithms.mazeGenerators.Maze3dSearchable;
 import algorithms.mazeGenerators.SimpleMaze3dGenerator;
 import algorithms.search.BFS;
 import algorithms.search.DFS;
-import algorithms.search.Searchable;
 import algorithms.search.Searcher;
 import algorithms.search.Solution;
 import io.MyCompressorOutputStream;
@@ -38,7 +39,12 @@ import io.MyDecompressorInputStream;
 import presenter.Properties;
 import presenter.PropertiesLoader;
 
-
+/**
+ * Make all the calculatios for specific command.
+ * @author Elad Jarby
+ * @version 1.0
+ * @since 13.09.2016
+ */
 public class MyModel extends Observable implements Model {
 
 	private ExecutorService threadPool;
@@ -50,7 +56,10 @@ public class MyModel extends Observable implements Model {
 	private String mazeName;
 	private Properties properties;
 
-
+	/**
+	 * Initialize all the options for Maze3d generators
+	 * @return Hashmap of Maze3d generators
+	 */
 	public HashMap<String, Maze3dGenerator> getMaze3dGenerator() {
 		HashMap<String, Maze3dGenerator> commands = new HashMap<String , Maze3dGenerator>();
 		commands.put("simple", new SimpleMaze3dGenerator());
@@ -59,6 +68,10 @@ public class MyModel extends Observable implements Model {
 		return commands;
 	}
 
+	/**
+	 * Initialize all the options for searchers
+	 * @return Hashmap of searchers
+	 */
 	public HashMap<String, Searcher<String>> getSearcher() {
 		HashMap<String, Searcher<String>> commands = new HashMap<String , Searcher<String>>();
 		commands.put("dfs", new DFS<String>());
@@ -66,12 +79,42 @@ public class MyModel extends Observable implements Model {
 		return commands;
 	}
 
+	/**
+	 * Constructor to initialize all the fields.
+	 * @param mazes - HashMap of Strings(maze name) and Maze3d(maze)
+	 * @param mazeSolution - Hashmap of Strings(maze name) and Solution<String>(Solutions)
+	 * @param properties - Get properties of the client
+	 * @param threadPool - Thread pool 
+	 */
 	public MyModel() {
 		mazes = new HashMap<String, Maze3d>();
 		mazeSolutions = new HashMap<String, Solution<String>>();
 		intializeIfZipped();
+		checkProperties();
 		properties = PropertiesLoader.getInstance().getProperties();
 		threadPool = Executors.newFixedThreadPool(properties.getNumberOfThreads());
+	}
+
+	private void checkProperties() {
+		
+		File f=new File("./resources/properties.xml");
+		if(!f.exists())	{
+			makeProperties();
+		}
+	}
+
+	private void makeProperties() {
+		try 
+		{
+			XMLEncoder xmlE = new XMLEncoder(new FileOutputStream("./resources/properties.xml"));
+			xmlE.writeObject(new Properties(10, "growing-random", "dfs" , 20,"gui","127.0.0.1",1234));
+			xmlE.close();
+			System.out.println("XML File create successfuly!");
+		} 
+		catch (FileNotFoundException e) 
+		{
+			e.printStackTrace();
+		}		
 	}
 
 	/**
@@ -153,12 +196,12 @@ public class MyModel extends Observable implements Model {
 			notifyObservers("error");
 			return;
 		}
-//		if(mazes.containsKey(mazeName)) {
-//			setChanged();
-//			message = "Maze already exist , try to generate with other name.";
-//			notifyObservers("error");
-//			return;
-//		}
+		//		if(mazes.containsKey(mazeName)) {
+		//			setChanged();
+		//			message = "Maze already exist , try to generate with other name.";
+		//			notifyObservers("error");
+		//			return;
+		//		}
 		threadPool.submit(new Callable<Maze3d>() {
 			@Override
 			public Maze3d call() throws Exception {
@@ -434,7 +477,7 @@ public class MyModel extends Observable implements Model {
 		}
 		mazeName = arr[0];
 		String algorithm = properties.getSearchAlgorithm();
-		Maze3d maze=mazes.get(mazeName);
+		//		Maze3d maze=mazes.get(mazeName);
 		if (!mazes.containsKey(mazeName)) {
 			setChanged();
 			message = "There is no maze with the name: " + mazeName;
@@ -447,7 +490,7 @@ public class MyModel extends Observable implements Model {
 			@Override
 			public Solution<String> call() throws Exception {
 				HashMap<String, Searcher<String>> searchers = getSearcher();
-				Searchable<String> mazeSearch = new Maze3dSearchable(maze);
+				//				Searchable<String> mazeSearch = new Maze3dSearchable(maze);
 				Searcher<String> searchAlgorithm = searchers.get(algorithm);
 
 				if(searchAlgorithm == null) {
@@ -456,16 +499,19 @@ public class MyModel extends Observable implements Model {
 					notifyObservers("error");
 					return null;
 				}
-				if(!mazeSolutions.containsKey(mazeName)) {
-					mazeSolutions.put(mazeName, searchAlgorithm.Search(mazeSearch));
+
+				Solution<String> solution = askServerForSolution(algorithm,mazeName);
+				if(solution==null)
+				{
 					setChanged();
-					message = "Solution for: " + mazeName + " is ready!";
-					notifyObservers("displayMessage");
-				} else {
-					setChanged();
-					message = "Solution for: " + mazeName + " is already exist!";
-					notifyObservers("displayMessage");
+					message = "Problem with the server , try to open server!";
+					notifyObservers("error");
+					return null;
 				}
+				mazeSolutions.put(mazeName, solution);
+				setChanged();
+				notifyObservers("displayMessage");
+
 
 				return mazeSolutions.get(mazeName);
 			}
@@ -474,6 +520,55 @@ public class MyModel extends Observable implements Model {
 
 	}
 
+	@SuppressWarnings("unchecked")
+	private Solution<String> askServerForSolution(String algorithm , String mazeName) {
+		Socket server=null;
+		ObjectOutputStream outToServer = null;
+		ObjectInputStream inFromServer = null;
+
+		try {
+			//defines the socket and the input and output sources
+			server = new Socket(properties.getServerIp().toString(),properties.getServerPort());
+
+			//now we connected to the server
+			//taking out of socket his output and input streams
+			outToServer = new ObjectOutputStream(server.getOutputStream());
+			inFromServer=new ObjectInputStream(server.getInputStream());
+			outToServer.writeObject("Hi");
+			outToServer.flush();
+
+			inFromServer.readObject();
+
+			ArrayList<Object> packetToServer = new ArrayList<Object>();
+			packetToServer.add(algorithm);
+			packetToServer.add(mazeName);
+			packetToServer.add((mazes.get(mazeName)).toByteArray());
+
+			outToServer.writeObject(packetToServer);
+			outToServer.flush();
+
+			message = (String) inFromServer.readObject();
+			
+			outToServer.writeObject("solve");
+			outToServer.flush();
+			
+			Solution<String> solution = (Solution<String>) inFromServer.readObject();
+			
+			outToServer.close();
+			inFromServer.close();
+			server.close();
+			return solution;
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 	/**
 	 * Handling with command: display_solution < maze name ></br>
 	 * Display existing solution.
@@ -575,13 +670,13 @@ public class MyModel extends Observable implements Model {
 	 */
 	@Override
 	public void saveProperties(String[] arr) {
-		if (arr.length != 5) {
+		if (arr.length != 7) {
 			setChanged();
 			message = "Invalid number of parameters";
 			notifyObservers("error");
 			return;
 		}
-		if(!isInteger(arr[0]) || !isInteger(arr[3])) {
+		if(!isInteger(arr[0]) || !isInteger(arr[3]) || !isInteger(arr[6])) {
 			setChanged();
 			message = "Number of threads or max size of maze must be integers";
 			notifyObservers("error");
@@ -592,6 +687,9 @@ public class MyModel extends Observable implements Model {
 		String searchAlgorithm = arr[2];
 		int maxSize = Integer.parseInt(arr[3]);
 		String view = arr[4];
+		String serverIp = arr[5];
+		int serverPort = Integer.parseInt(arr[6]);
+
 		HashMap<String, Maze3dGenerator> algorithms = getMaze3dGenerator();
 		HashMap<String, Searcher<String>> searchers = getSearcher();
 		if( numberOfThreads < 5) {
@@ -628,6 +726,20 @@ public class MyModel extends Observable implements Model {
 			notifyObservers("error");
 			return;
 		}
+		
+		if( serverPort < 1000) {
+			setChanged();
+			message = "Minimum port number need to be 1000";
+			notifyObservers("error");
+			return;
+		}
+		
+		if( serverPort > 9999) {
+			setChanged();
+			message = "Maximum port number need to be 9999";
+			notifyObservers("error");
+			return;
+		}
 
 		if(!(view.equals("cli") || view.equals("gui"))) {
 			setChanged();
@@ -638,13 +750,15 @@ public class MyModel extends Observable implements Model {
 		try 
 		{
 			XMLEncoder xmlE = new XMLEncoder(new FileOutputStream("./resources/properties.xml"));
-			xmlE.writeObject(new Properties(numberOfThreads, algorithm, searchAlgorithm , maxSize ,view));
+			xmlE.writeObject(new Properties(numberOfThreads, algorithm, searchAlgorithm , maxSize ,view , serverIp , serverPort));
 			xmlE.close();
 			properties.setNumberOfThreads(numberOfThreads);
 			properties.setDefaultAlgorithm(algorithm);
 			properties.setSearchAlgorithm(searchAlgorithm);
 			properties.setMaxMazeSize(maxSize);
 			properties.setViewSetup(view);
+			properties.setServerIp(serverIp);
+			properties.setServerPort(serverPort);
 			message = "You must restart the program before\nthe new setting will take effect.";
 			setChanged();
 			notifyObservers("displayMessage");

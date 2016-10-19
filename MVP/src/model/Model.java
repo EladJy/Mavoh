@@ -3,6 +3,12 @@ package model;
 import algorithms.search.Solution;
 import presenter.Properties;
 
+/**
+ * Model interface which Make all the calculations for specific command.
+ * @author Elad Jarby
+ * @version 1.0
+ * @since 13.09.2016
+ */
 public interface Model {
 	/**
 	 * Handling with command: dir < path ></br>

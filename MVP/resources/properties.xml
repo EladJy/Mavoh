@@ -2,7 +2,7 @@
 <java version="1.8.0_102" class="java.beans.XMLDecoder">
  <object class="presenter.Properties">
   <void property="defaultAlgorithm">
-   <string>growing-last</string>
+   <string>growing-random</string>
   </void>
   <void property="maxMazeSize">
    <int>20</int>
@@ -12,6 +12,12 @@
   </void>
   <void property="searchAlgorithm">
    <string>dfs</string>
+  </void>
+  <void property="serverIp">
+   <string>127.0.0.1</string>
+  </void>
+  <void property="serverPort">
+   <int>1234</int>
   </void>
   <void property="viewSetup">
    <string>gui</string>

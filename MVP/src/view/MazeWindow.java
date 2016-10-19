@@ -70,7 +70,8 @@ public class MazeWindow extends BasicWindow implements View {
 	String[] algorithms = {"simple","growing-last","growing-random"};
 	String[] searchAlgorithms = {"bfs","dfs"};
 	String[] views = {"cli","gui"};
-	Text txtName;
+	String serverIp,serverPort;
+	Text txtName , txtServerIp , txtServerPort;
 	Color labelColor = new Color(null,0,0,0,0);
 	Color fontColor = new Color(null,255,255,255);
 	Image buttonImage , buttonDisable;
@@ -114,6 +115,8 @@ public class MazeWindow extends BasicWindow implements View {
 		floors = new String[maxSize-2];
 		widths = new String[maxSize-2];
 		lengths = new String[maxSize-2];
+		serverIp = properties.getServerIp();
+		serverPort = Integer.toString(properties.getServerPort());
 
 		for(int i = 0 ; i < maxSize-2 ; i++) {
 			size = Integer.toString(i+3);
@@ -396,6 +399,30 @@ public class MazeWindow extends BasicWindow implements View {
 						gd = new GridData();
 						gd.widthHint = 90;
 						setAlgorithm.setLayoutData(gd);
+						
+						Label serverIpLabel = new Label(shellProperties, SWT.NONE);
+						serverIpLabel.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 ,1));
+						serverIpLabel.setText("Server ip: ");
+						serverIpLabel.setForeground(labelColor);
+						serverIpLabel.setBackground(fontColor);
+						txtServerIp = new Text(shellProperties , SWT.BORDER);
+						txtServerIp.setText(serverIp);
+						txtServerIp.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 ,1));
+						gd = new GridData();
+						gd.widthHint = 50;
+						txtServerIp.setLayoutData(gd);
+						
+						Label serverPortLabel = new Label(shellProperties, SWT.NONE);
+						serverPortLabel.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 ,1));
+						serverPortLabel.setText("Server port: ");
+						serverPortLabel.setForeground(labelColor);
+						serverPortLabel.setBackground(fontColor);
+						txtServerPort = new Text(shellProperties , SWT.BORDER);
+						txtServerPort.setText(serverPort);
+						txtServerPort.setLayoutData(new GridData(SWT.None , SWT.None , false , false , 1 ,1));
+						gd = new GridData();
+						gd.widthHint = 40;
+						txtServerPort.setLayoutData(gd);
 
 						//Create close button in the properties menu
 						Button btnClose = new Button(shellProperties, SWT.NONE);
@@ -425,7 +452,8 @@ public class MazeWindow extends BasicWindow implements View {
 							@Override
 							public void widgetSelected(SelectionEvent arg0) {
 								String command = "save_properties " + setMaxThreads.getText() + " " + setAlgorithm.getText() +
-										" " + setSearchAlgorithm.getText() + " " + setMaxSize.getText() + " " + setView.getText();
+										" " + setSearchAlgorithm.getText() + " " + setMaxSize.getText() +
+										" " + setView.getText() + " " + txtServerIp.getText() + " " + txtServerPort.getText();
 								setChanged();
 								notifyObservers(command);
 								shellProperties.close();
@@ -436,7 +464,7 @@ public class MazeWindow extends BasicWindow implements View {
 						});
 
 						//Display properties menu
-						shellProperties.setSize(250,210);
+						shellProperties.setSize(250,260);
 						shellProperties.open();
 
 					}
@@ -936,6 +964,10 @@ public class MazeWindow extends BasicWindow implements View {
 		display.asyncExec(new Runnable() {
 			public void run() {
 				canCloseGame = false;
+				if(error.startsWith("Problem with the server")) {
+					btnSolveMaze.setEnabled(true);
+					btnDisplaySolution.setEnabled(false);
+				}
 				int style = SWT.ICON_ERROR | SWT.OK;
 				MessageBox msgBox = new MessageBox(shell,style);
 				msgBox.setText("Error");

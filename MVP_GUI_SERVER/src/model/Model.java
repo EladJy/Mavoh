@@ -2,6 +2,12 @@ package model;
 
 import presenter.ServerProperties;
 
+/**
+ * Model interface which make all the calculations for specific command.
+ * @author Elad Jarby
+ * @version 1.0
+ * @since 18.10.2016
+ */
 public interface Model {
 	
 	/**
