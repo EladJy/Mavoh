@@ -629,7 +629,7 @@ public class MyModel extends Observable implements Model {
 	@Override
 	public void saveMazesAndSolutions() {
 		try {
-			FileOutputStream fos = new FileOutputStream("Solutions.zip");
+			FileOutputStream fos = new FileOutputStream("ClientSolutions.zip");
 			GZIPOutputStream gz = new GZIPOutputStream(fos);
 			ObjectOutputStream oos = new ObjectOutputStream(gz);
 			oos.writeObject(mazeSolutions);
@@ -651,7 +651,7 @@ public class MyModel extends Observable implements Model {
 	public void loadMazesAndSolutions() {
 
 		try {
-			FileInputStream fis = new FileInputStream("Solutions.zip");
+			FileInputStream fis = new FileInputStream("ClientSolutions.zip");
 			GZIPInputStream gz = new GZIPInputStream(fis);
 			ObjectInputStream ois = new ObjectInputStream(gz);
 			mazeSolutions = (HashMap<String, Solution<String>>) ois.readObject();

@@ -43,7 +43,7 @@ public class MyClientHandler implements ClientHandler {
 	public MyClientHandler() {
 		mazeSolutions = new HashMap<String, Solution<String>>();
 		mazes = new HashMap<String, Maze3d>();
-		File solutions = new File("Solutions.zip");
+		File solutions = new File("ServerSolutions.zip");
 		if(solutions.exists()) {
 			loadMazesAndSolutions();
 		}
@@ -135,7 +135,7 @@ public class MyClientHandler implements ClientHandler {
 		try 
 		{
 			ObjectOutputStream objectOut;
-			objectOut = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream("Solutions.zip")));
+			objectOut = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream("ServerSolutions.zip")));
 			objectOut.writeObject(mazeSolutions);
 			objectOut.writeObject(mazes);
 			objectOut.flush();
@@ -148,12 +148,12 @@ public class MyClientHandler implements ClientHandler {
 	}
 
 	/**
-	 * Load all mazes and solution from Solutions.zip file (cache)
+	 * Load all mazes and solution from ServerSolutions.zip file (cache)
 	 */
 	@SuppressWarnings("unchecked")
 	private void loadMazesAndSolutions() {
 		try {
-			FileInputStream fis = new FileInputStream("Solutions.zip");
+			FileInputStream fis = new FileInputStream("ServerSolutions.zip");
 			GZIPInputStream gz = new GZIPInputStream(fis);
 			ObjectInputStream ois = new ObjectInputStream(gz);
 			mazeSolutions = (HashMap<String, Solution<String>>) ois.readObject();
