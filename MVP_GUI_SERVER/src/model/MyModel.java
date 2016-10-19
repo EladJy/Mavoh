@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import presenter.PropertiesLoader;
 import presenter.ServerProperties;
 
 /**
@@ -44,43 +45,29 @@ public class MyModel extends Observable implements Model {
 	public MyModel() 
 	{
 		this.clinetHandler=new MyClientHandler();
+		checkServerProperties();
+		serverProperties = PropertiesLoader.getInstance().getProperties();
+	}
 
+	private void checkServerProperties() {
 		File f=new File("serverProperties.xml");
-		if(!f.exists())
-		{
+		if(!f.exists())	{
 			makeProperties();
-		} else {
-			loadProperties();
-		}
+		}	
 	}
 
-	/**
-	 * Private function to load properties of server
-	 */
-	private void loadProperties() {
-		XMLDecoder xmlD;
-		try 
-		{
-			xmlD = new XMLDecoder(new FileInputStream("serverProperties.xml"));
-			serverProperties=(ServerProperties)xmlD.readObject();
-			xmlD.close();
-		} 
-		catch (FileNotFoundException e) 
-		{
-			e.printStackTrace();
-		} 		
-	}
 
 	/**
 	 * Private function , if there is no file of server properties, </br>
 	 * The function will make one.
 	 */
 	private void makeProperties() {
-		XMLEncoder xmlE;
+		XMLEncoder xmlEncoder;
 		try {
-			xmlE = new XMLEncoder(new FileOutputStream("serverProperties.xml"));
-			xmlE.writeObject(new ServerProperties(1234, 5,10000,"gui"));
-			xmlE.close();
+			xmlEncoder = new XMLEncoder(new FileOutputStream("serverProperties.xml"));
+			xmlEncoder.writeObject(new ServerProperties(1234, 5,10000,"gui"));
+			xmlEncoder.close();
+			System.out.println("XML File create successfuly!");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
